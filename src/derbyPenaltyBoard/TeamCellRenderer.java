@@ -7,8 +7,6 @@ package derbyPenaltyBoard;
 
 import java.awt.Component;
 import java.awt.FontMetrics;
-import java.awt.font.TextAttribute;
-import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -34,6 +32,10 @@ public class TeamCellRenderer extends DefaultTableCellRenderer {
         JLabel label = (JLabel)super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         label.setFont(label.getFont().deriveFont(FullScreenOptionsDialog.getCellFontSize()));
         return label;
+    }
+    
+    public void resetFont() {
+        super.setFont(super.getFont().deriveFont(FullScreenOptionsDialog.getCellFontSize()));
     }
     
     public FontMetrics getFontMetrics() {

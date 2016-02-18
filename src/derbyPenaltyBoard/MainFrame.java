@@ -5,17 +5,13 @@
  */
 package derbyPenaltyBoard;
 
-import java.awt.Frame;
 import java.awt.GraphicsDevice;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import javax.swing.AbstractAction;
-import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
@@ -28,6 +24,7 @@ public class MainFrame extends javax.swing.JFrame {
     private Game game;
     private FullScreenForm fsf;
     private MyFileChooser fc;
+    private PenaltyCodesDialog pcd;
     
     /**
      * Creates new form MainFrame
@@ -44,15 +41,7 @@ public class MainFrame extends javax.swing.JFrame {
         splitPaneTeam.setLeftComponent(new TeamPanel(game.leftTeam));
         splitPaneTeam.setRightComponent(new TeamPanel(game.rightTeam));
         
-        /*getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-            KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0), "FullScreen"); //$NON-NLS-1$
-        getRootPane().getActionMap().put("FullScreen", new AbstractAction(){ //$NON-NLS-1$
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                enterFullScreenFromKey();
-            }
-        });*/
+        pcd = new PenaltyCodesDialog(this, false);
         miFullScreen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0));
     }
 
@@ -85,6 +74,8 @@ public class MainFrame extends javax.swing.JFrame {
         miUpdateFullScreen = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         miFullScreenOptions = new javax.swing.JMenuItem();
+        jSeparator3 = new javax.swing.JPopupMenu.Separator();
+        miPenaltyCodes = new javax.swing.JCheckBoxMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Derby Penalty Board");
@@ -209,6 +200,15 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
         mView.add(miFullScreenOptions);
+        mView.add(jSeparator3);
+
+        miPenaltyCodes.setText("Penalty Codes");
+        miPenaltyCodes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miPenaltyCodesActionPerformed(evt);
+            }
+        });
+        mView.add(miPenaltyCodes);
 
         mbMain.add(mView);
 
@@ -237,6 +237,9 @@ public class MainFrame extends javax.swing.JFrame {
         splitPaneTeam.setLeftComponent(new TeamPanel(game.leftTeam));
         splitPaneTeam.setRightComponent(new TeamPanel(game.rightTeam));
         splitPaneTeam.setDividerLocation(0.5);
+        if(fsf != null && fsf.isDisplayable()) {
+            fsf.resetBoth(game);
+        }
     }//GEN-LAST:event_miNewGameActionPerformed
 
     private void miTeamSwapActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miTeamSwapActionPerformed
@@ -291,7 +294,11 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_miFullScreenActionPerformed
 
     private void miFullScreenOptionsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miFullScreenOptionsActionPerformed
-        FullScreenOptionsDialog.showDialog(this);
+        if(fsf != null && fsf.isDisplayable()) {
+            FullScreenOptionsDialog.showDialog(this, fsf);
+        } else {
+            FullScreenOptionsDialog.showDialog(this);
+        }
     }//GEN-LAST:event_miFullScreenOptionsActionPerformed
 
     private void miUpdateFullScreenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miUpdateFullScreenActionPerformed
@@ -311,7 +318,10 @@ public class MainFrame extends javax.swing.JFrame {
                 game.leftTeam = Team.load(fc.getSelectedFile());
                 splitPaneTeam.setLeftComponent(new TeamPanel(game.leftTeam));
                 splitPaneTeam.setDividerLocation(0.5);
-            } catch (IOException ex) {
+                if(fsf != null && fsf.isDisplayable()) {
+                    fsf.resetLeft(game.leftTeam);
+                }
+            } catch (IOException | NumberFormatException ex) {
                 String[] options = new String[]{"Show Details", "OK"};
                 result = JOptionPane.showOptionDialog(this, fc.getSelectedFile().getName() +"\nError Opening.", "Open", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
                 if(result == JOptionPane.YES_OPTION) {
@@ -359,7 +369,10 @@ public class MainFrame extends javax.swing.JFrame {
                 game.rightTeam = Team.load(fc.getSelectedFile());
                 splitPaneTeam.setRightComponent(new TeamPanel(game.rightTeam));
                 splitPaneTeam.setDividerLocation(0.5);
-            } catch (IOException ex) {
+                if(fsf != null && fsf.isDisplayable()) {
+                    fsf.resetRight(game.rightTeam);
+                }
+            } catch (IOException | NumberFormatException ex) {
                 String[] options = new String[]{"Show Details", "OK"};
                 result = JOptionPane.showOptionDialog(this, fc.getSelectedFile().getName() +"\nError Opening.", "Open", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
                 if(result == JOptionPane.YES_OPTION) {
@@ -387,6 +400,10 @@ public class MainFrame extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_miRightSaveActionPerformed
+
+    private void miPenaltyCodesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miPenaltyCodesActionPerformed
+        pcd.setVisible(miPenaltyCodes.isSelected());
+    }//GEN-LAST:event_miPenaltyCodesActionPerformed
 
     /**
      * @param args the command line arguments
@@ -424,6 +441,7 @@ public class MainFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
+    private javax.swing.JPopupMenu.Separator jSeparator3;
     private javax.swing.JMenu mEdit;
     private javax.swing.JMenu mFile;
     private javax.swing.JMenu mLeft;
@@ -436,6 +454,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem miLeftOpen;
     private javax.swing.JMenuItem miLeftSave;
     private javax.swing.JMenuItem miNewGame;
+    private javax.swing.JCheckBoxMenuItem miPenaltyCodes;
     private javax.swing.JMenuItem miRightNew;
     private javax.swing.JMenuItem miRightOpen;
     private javax.swing.JMenuItem miRightSave;

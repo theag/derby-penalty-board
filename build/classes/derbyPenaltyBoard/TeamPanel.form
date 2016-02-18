@@ -14,12 +14,20 @@
             <Property name="enabled" type="boolean" value="false"/>
           </Properties>
         </MenuItem>
-        <MenuItem class="javax.swing.JCheckBoxMenuItem" name="miEjected">
+        <MenuItem class="javax.swing.JMenuItem" name="miMoveUp">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Is Ejected"/>
+            <Property name="text" type="java.lang.String" value="Move Up"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="miEjectedActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="miMoveUpActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="miMoveDown">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Move Down"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="miMoveDownActionPerformed"/>
           </Events>
         </MenuItem>
       </SubComponents>

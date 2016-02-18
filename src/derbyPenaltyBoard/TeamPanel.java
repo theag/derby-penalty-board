@@ -42,7 +42,8 @@ public class TeamPanel extends javax.swing.JPanel {
 
         popupPlayer = new javax.swing.JPopupMenu();
         miNumber = new javax.swing.JMenuItem();
-        miEjected = new javax.swing.JCheckBoxMenuItem();
+        miMoveUp = new javax.swing.JMenuItem();
+        miMoveDown = new javax.swing.JMenuItem();
         lblIdentifier = new javax.swing.JLabel();
         txtIdentifier = new javax.swing.JTextField();
         lblColour = new javax.swing.JLabel();
@@ -55,13 +56,21 @@ public class TeamPanel extends javax.swing.JPanel {
         miNumber.setEnabled(false);
         popupPlayer.add(miNumber);
 
-        miEjected.setText("Is Ejected");
-        miEjected.addActionListener(new java.awt.event.ActionListener() {
+        miMoveUp.setText("Move Up");
+        miMoveUp.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                miEjectedActionPerformed(evt);
+                miMoveUpActionPerformed(evt);
             }
         });
-        popupPlayer.add(miEjected);
+        popupPlayer.add(miMoveUp);
+
+        miMoveDown.setText("Move Down");
+        miMoveDown.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miMoveDownActionPerformed(evt);
+            }
+        });
+        popupPlayer.add(miMoveDown);
 
         lblIdentifier.setText("Team Identifier:");
 
@@ -173,7 +182,8 @@ public class TeamPanel extends javax.swing.JPanel {
     private void tblTeamMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblTeamMouseReleased
         if(evt.isPopupTrigger() && rowClicked >= 0) {
             miNumber.setText(team.players[rowClicked].number);
-            miEjected.setSelected(team.players[rowClicked].isEjected);
+            miMoveUp.setEnabled(rowClicked > 0);
+            miMoveDown.setEnabled(rowClicked < Team.MAX_ROSTER - 1);
             popupPlayer.show(tblTeam, evt.getX(), evt.getY());
         }
     }//GEN-LAST:event_tblTeamMouseReleased
@@ -188,12 +198,6 @@ public class TeamPanel extends javax.swing.JPanel {
             rowClicked = -1;
         }
     }//GEN-LAST:event_tblTeamMousePressed
-
-    private void miEjectedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miEjectedActionPerformed
-        team.players[rowClicked].isEjected = miEjected.isSelected();
-        ((TeamTableModel)tblTeam.getModel()).fireTableDataChanged();
-        fireTeamTableUpdated();
-    }//GEN-LAST:event_miEjectedActionPerformed
 
     private void tblTeamMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblTeamMouseClicked
         if(SwingUtilities.isLeftMouseButton(evt)) {
@@ -213,6 +217,18 @@ public class TeamPanel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_tblTeamFocusLost
 
+    private void miMoveUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miMoveUpActionPerformed
+        team.movePlayerUp(rowClicked);
+        ((TeamTableModel)tblTeam.getModel()).fireTableDataChanged();
+        fireTeamTableUpdated();
+    }//GEN-LAST:event_miMoveUpActionPerformed
+
+    private void miMoveDownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miMoveDownActionPerformed
+        team.movePlayerDown(rowClicked);
+        ((TeamTableModel)tblTeam.getModel()).fireTableDataChanged();
+        fireTeamTableUpdated();
+    }//GEN-LAST:event_miMoveDownActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnColour;
@@ -220,7 +236,8 @@ public class TeamPanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblColour;
     private javax.swing.JLabel lblIdentifier;
-    private javax.swing.JCheckBoxMenuItem miEjected;
+    private javax.swing.JMenuItem miMoveDown;
+    private javax.swing.JMenuItem miMoveUp;
     private javax.swing.JMenuItem miNumber;
     private javax.swing.JPopupMenu popupPlayer;
     private javax.swing.JTable tblTeam;

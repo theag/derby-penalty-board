@@ -142,4 +142,20 @@ public class FullScreenForm extends javax.swing.JFrame {
                 break;
         }
     }
+
+    public void resetLeft(Team team) {
+        splitPaneTeam.setLeftComponent(new FullScreenPanel(team));
+        splitPaneTeam.setDividerLocation(0.5);
+    }
+
+    public void resetRight(Team team) {
+        splitPaneTeam.setRightComponent(new FullScreenPanel(team));
+        splitPaneTeam.setDividerLocation(0.5);
+    }
+
+    public void resetBoth(Game game) {
+        splitPaneTeam.setLeftComponent(new FullScreenPanel(game.leftTeam));
+        splitPaneTeam.setRightComponent(new FullScreenPanel(game.rightTeam));
+        splitPaneTeam.setDividerLocation(0.5);
+    }
 }

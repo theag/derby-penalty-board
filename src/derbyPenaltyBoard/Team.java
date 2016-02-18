@@ -19,21 +19,17 @@ import java.io.PrintWriter;
 public class Team {
     public static final int MAX_ROSTER = 14;
 
-    public static Team load(File file) throws IOException {
+    public static Team load(File file) throws IOException, NumberFormatException {
         BufferedReader inFile = new BufferedReader(new FileReader(file));
         Team rv = new Team(inFile.readLine());
         String colour = inFile.readLine();
         if(!colour.isEmpty()) {
-            try {
-                rv.colour = Color.decode(colour);
-            } catch(NumberFormatException ex) {
-                throw new IOException(ex.getMessage());
-            }
+            rv.colour = Color.decode(colour);
         }
         String line = inFile.readLine();
         int index = 0;
         while(line != null && index < MAX_ROSTER) {
-            rv.players[index].number = line;
+            rv.players[index++].number = line;
             line = inFile.readLine();
         }
         inFile.close();
@@ -43,7 +39,7 @@ public class Team {
     public static void save(Team team, File file) throws IOException {
         PrintWriter outFile = new PrintWriter(file);
         outFile.println(team.identifier);
-        String colour = Integer.toHexString(team.colour.getRGB());
+        String colour = Integer.toHexString(team.colour.getRGB()).substring(2).toUpperCase();
         while(colour.length() < 6) {
             colour = "0" +colour;
         }
@@ -117,6 +113,18 @@ public class Team {
             }
         }
         return null;
+    }
+
+    public void movePlayerUp(int index) {
+        Player temp = players[index-1];
+        players[index-1] = players[index];
+        players[index] = temp;
+    }
+
+    public void movePlayerDown(int index) {
+        Player temp = players[index+1];
+        players[index+1] = players[index];
+        players[index] = temp;
     }
     
 }

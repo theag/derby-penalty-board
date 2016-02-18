@@ -41,6 +41,13 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
         dialog.setVisible(true);
     }
     
+    public static void showDialog(java.awt.Frame parent, FullScreenForm fsf) {
+        FullScreenOptionsDialog dialog = new FullScreenOptionsDialog(parent, true);
+        dialog.setFullScreenForm(fsf);
+        dialog.setLocationRelativeTo(parent);
+        dialog.setVisible(true);
+    }
+    
     public static GraphicsDevice getScreenDevice() {
         return graphicsDevice.device;
     }
@@ -121,6 +128,8 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
         }
         return rv;
     }
+    
+    private FullScreenForm fsf;
 
     /**
      * Creates new form FullScreenOptionsDialog
@@ -128,6 +137,7 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
     private FullScreenOptionsDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        fsf = null;
         lstDisplayOptions.setListData(getScreenDevices());
         lstDisplayOptions.setSelectedValue(graphicsDevice, true);
         spnHeaderFont.setValue((int)headerFontSize);
@@ -461,6 +471,9 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
         rowPaddingSame = cbRowPaddingSame.isSelected();
         ejectedLineThickness = (int)spnEjectedThickness.getValue();
         showOnSingleDevice = cbSingleMonitor.isSelected();
+        if(fsf != null) {
+            fsf.updateTables();
+        }
     }
 
     private MyGraphicsDevice[] getScreenDevices() {
@@ -470,6 +483,10 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
             rv[i] = new MyGraphicsDevice(devices[i], i);
         }
         return rv;
+    }
+
+    private void setFullScreenForm(FullScreenForm fsf) {
+        this.fsf = fsf;
     }
 
     private static class MyGraphicsDevice {

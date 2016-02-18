@@ -5,6 +5,8 @@
  */
 package derbyPenaltyBoard;
 
+import javax.swing.table.TableCellRenderer;
+
 /**
  *
  * @author nbp184
@@ -114,6 +116,11 @@ public class FullScreenPanel extends javax.swing.JPanel {
 
     public void updateAll() {
         tblTeam.getTableHeader().setDefaultRenderer(new TeamHeaderRenderer(team.colour));
+        TeamCellRenderer renderer = (TeamCellRenderer)tblTeam.getCellRenderer(0, 0);
+        renderer.resetFont();
+        tblTeam.setRowHeight(renderer.getFontMetrics().getHeight()
+                + FullScreenOptionsDialog.getRowPadding(FullScreenOptionsDialog.TOP)
+                + FullScreenOptionsDialog.getRowPadding(FullScreenOptionsDialog.BOTTOM));
         tblTeam.getMyModel().fireTableStructureChanged();
     }
     
