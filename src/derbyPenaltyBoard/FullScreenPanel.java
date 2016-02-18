@@ -7,7 +7,6 @@ package derbyPenaltyBoard;
 
 import java.awt.BorderLayout;
 import javax.swing.BorderFactory;
-import javax.swing.table.TableCellRenderer;
 
 /**
  *
@@ -50,9 +49,11 @@ public class FullScreenPanel extends javax.swing.JPanel {
         
         tblTeam = new FullScreenTable(team);
         tblTeam.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 tblTeamMousePressed(evt);
             }
+            @Override
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 tblTeamMouseReleased(evt);
             }
