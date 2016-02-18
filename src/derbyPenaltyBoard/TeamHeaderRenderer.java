@@ -23,7 +23,7 @@ public class TeamHeaderRenderer implements TableCellRenderer {
     
     public TeamHeaderRenderer(Color colour) {
         this.colour = colour;
-        contrast = pickContrastForeground(colour);
+        contrast = Team.getContrast(colour);
         
     }
 
@@ -44,17 +44,6 @@ public class TeamHeaderRenderer implements TableCellRenderer {
         }
         rv.setOpaque(true);
         return rv;
-    }
-    
-    private Color pickContrastForeground(Color colour) {
-        int black = 0;
-        int white = 0xFF;
-        int brightness = (colour.getRed()*299 + colour.getGreen()*587 + colour.getBlue()*114)/1000;
-        if(Math.abs(black - brightness) >= Math.abs(white - brightness)) {
-            return Color.black;
-        } else {
-            return Color.white;
-        }
     }
     
 }

@@ -26,28 +26,17 @@ public class FullScreenTable extends JTable {
         setModel(new FullScreenTeamTableModel(team));
         setShowGrid(true);
         setBorder(javax.swing.BorderFactory.createLineBorder(Color.black));
-        getTableHeader().setDefaultRenderer(new TeamHeaderRenderer(team.colour));
+        setTableHeader(null);
         TeamCellRenderer renderer = new TeamCellRenderer();
         setDefaultRenderer(Object.class, renderer);
         setRowHeight(renderer.getFontMetrics().getHeight()
                 + FullScreenOptionsDialog.getRowPadding(FullScreenOptionsDialog.TOP)
                 + FullScreenOptionsDialog.getRowPadding(FullScreenOptionsDialog.BOTTOM));
         setRowSelectionAllowed(false);
-        addComponentListener(new java.awt.event.ComponentAdapter() {
-            @Override
-            public void componentResized(java.awt.event.ComponentEvent evt) {
-                tblTeamComponentResized(evt);
-            }
-        });
     }
     
     public FullScreenTeamTableModel getMyModel() {
         return (FullScreenTeamTableModel)getModel();
-    }
-    
-    private void tblTeamComponentResized(java.awt.event.ComponentEvent evt) {
-        TableColumn column = getColumnModel().getColumn(0);
-        column.setPreferredWidth(column.getPreferredWidth()*2);
     }
     
     @Override

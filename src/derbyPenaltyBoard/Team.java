@@ -49,6 +49,17 @@ public class Team {
         }
         outFile.close();
     }
+
+    public static Color getContrast(Color colour) {
+        int black = 0;
+        int white = 0xFF;
+        int brightness = (colour.getRed()*299 + colour.getGreen()*587 + colour.getBlue()*114)/1000;
+        if(Math.abs(black - brightness) >= Math.abs(white - brightness)) {
+            return Color.black;
+        } else {
+            return Color.white;
+        }
+    }
     
     public String identifier;
     public Color colour;
@@ -125,6 +136,10 @@ public class Team {
         Player temp = players[index+1];
         players[index+1] = players[index];
         players[index] = temp;
+    }
+
+    public Color getContrast() {
+        return Team.getContrast(colour);
     }
     
 }

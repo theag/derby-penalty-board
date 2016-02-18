@@ -201,6 +201,7 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
         jLabel6 = new javax.swing.JLabel();
         spnEjectedThickness = new javax.swing.JSpinner();
         cbSingleMonitor = new javax.swing.JCheckBox();
+        btnAutoFontSize = new javax.swing.JButton();
 
         setTitle("Full Screen Options");
 
@@ -267,6 +268,13 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
             }
         });
 
+        btnAutoFontSize.setText("Set Font Size Based On Display Resolution");
+        btnAutoFontSize.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAutoFontSizeActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -274,6 +282,18 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(btnOK)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnApply)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnCancel))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(lblDisplayOn)
+                                .addComponent(spDisplayOptions, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -317,20 +337,9 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
                                 .addComponent(jLabel6)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(spnEjectedThickness, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(cbSingleMonitor))
-                        .addGap(0, 2, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(btnOK)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnApply)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnCancel))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(lblDisplayOn)
-                                .addComponent(spDisplayOptions, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                            .addComponent(cbSingleMonitor)
+                            .addComponent(btnAutoFontSize))
+                        .addGap(0, 2, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -371,7 +380,9 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
                     .addComponent(spnEjectedThickness, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 102, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnAutoFontSize)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 68, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnCancel)
                     .addComponent(btnApply)
@@ -413,8 +424,22 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
         spDisplayOptions.setEnabled(!cbSingleMonitor.isSelected());
     }//GEN-LAST:event_cbSingleMonitorActionPerformed
 
+    private void btnAutoFontSizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAutoFontSizeActionPerformed
+        int height;
+        if(cbSingleMonitor.isSelected()) {
+            GraphicsDevice screenDevice = getGraphicsConfiguration().getDevice();
+            height = screenDevice.getDisplayMode().getHeight();
+        } else {
+            graphicsDevice = (MyGraphicsDevice)lstDisplayOptions.getSelectedValue();
+            height = graphicsDevice.device.getDisplayMode().getHeight();
+        }
+        spnHeaderFont.setValue((int)Math.floor(height/24.0 - 10));
+        spnCellFont.setValue((int)Math.floor(4*height/75.0 - 9));
+    }//GEN-LAST:event_btnAutoFontSizeActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnApply;
+    private javax.swing.JButton btnAutoFontSize;
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnOK;
     private javax.swing.JCheckBox cbDisplayIdentifier;

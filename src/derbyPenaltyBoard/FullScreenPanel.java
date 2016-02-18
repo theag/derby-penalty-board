@@ -5,6 +5,8 @@
  */
 package derbyPenaltyBoard;
 
+import java.awt.BorderLayout;
+import javax.swing.BorderFactory;
 import javax.swing.table.TableCellRenderer;
 
 /**
@@ -17,6 +19,9 @@ public class FullScreenPanel extends javax.swing.JPanel {
     private FullScreenTable tblTeam;
     private int rowClicked;
     
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblHeader;
+    
     /**
      * Creates new form FullScreenPanel
      * @param team
@@ -24,6 +29,25 @@ public class FullScreenPanel extends javax.swing.JPanel {
     public FullScreenPanel(Team team) {
         initComponents();
         this.team = team;
+        
+        setLayout(new BorderLayout());
+        
+        lblHeader = new javax.swing.JLabel(team.identifier);
+        lblHeader.setFont(lblHeader.getFont().deriveFont(FullScreenOptionsDialog.getHeaderFontSize()));
+        lblHeader.setOpaque(true);
+        lblHeader.setBackground(team.colour);
+        lblHeader.setBorder(BorderFactory.createEmptyBorder(
+                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.TOP),
+                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.LEFT),
+                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.BOTTOM),
+                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.RIGHT)));
+        if(FullScreenOptionsDialog.isShowingTeamIdentifier()) {
+            lblHeader.setForeground(team.getContrast());
+        } else {
+            lblHeader.setForeground(team.colour);
+        }
+        add(lblHeader, BorderLayout.PAGE_START);
+        
         tblTeam = new FullScreenTable(team);
         tblTeam.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
@@ -33,7 +57,9 @@ public class FullScreenPanel extends javax.swing.JPanel {
                 tblTeamMouseReleased(evt);
             }
         });
-        jScrollPane1.setViewportView(tblTeam);
+        jScrollPane1 = new javax.swing.JScrollPane(tblTeam);
+        jScrollPane1.setBorder(null);
+        add(jScrollPane1, BorderLayout.CENTER);
     }
 
     /**
@@ -48,7 +74,6 @@ public class FullScreenPanel extends javax.swing.JPanel {
         popupPlayer = new javax.swing.JPopupMenu();
         miNumber = new javax.swing.JMenuItem();
         miEjected = new javax.swing.JCheckBoxMenuItem();
-        jScrollPane1 = new javax.swing.JScrollPane();
 
         miNumber.setText("jMenuItem1");
         miNumber.setEnabled(false);
@@ -66,11 +91,11 @@ public class FullScreenPanel extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)
+            .addGap(0, 412, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 474, Short.MAX_VALUE)
+            .addGap(0, 483, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -81,7 +106,6 @@ public class FullScreenPanel extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JCheckBoxMenuItem miEjected;
     private javax.swing.JMenuItem miNumber;
     private javax.swing.JPopupMenu popupPlayer;
@@ -110,12 +134,18 @@ public class FullScreenPanel extends javax.swing.JPanel {
     }
 
     public void updateHeader() {
-        tblTeam.getTableHeader().setDefaultRenderer(new TeamHeaderRenderer(team.colour));
-        tblTeam.getMyModel().fireTableStructureChanged();
+        lblHeader.setText(team.identifier);
+        lblHeader.setFont(lblHeader.getFont().deriveFont(FullScreenOptionsDialog.getHeaderFontSize()));
+        lblHeader.setBackground(team.colour);
+        if(FullScreenOptionsDialog.isShowingTeamIdentifier()) {
+            lblHeader.setForeground(team.getContrast());
+        } else {
+            lblHeader.setForeground(team.colour);
+        }
     }
 
     public void updateAll() {
-        tblTeam.getTableHeader().setDefaultRenderer(new TeamHeaderRenderer(team.colour));
+        updateHeader();
         TeamCellRenderer renderer = (TeamCellRenderer)tblTeam.getCellRenderer(0, 0);
         renderer.resetFont();
         tblTeam.setRowHeight(renderer.getFontMetrics().getHeight()

@@ -312,6 +312,7 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosing
 
     private void miLeftOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miLeftOpenActionPerformed
+        fc.setSelectedFile(null);
         int result = fc.showOpenDialog(this);
         if(result == MyFileChooser.APPROVE_OPTION) {
             try {
