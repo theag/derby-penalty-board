@@ -106,5 +106,15 @@ public class FullScreenPanel extends javax.swing.JPanel {
     public void updateTable() {
         tblTeam.getMyModel().fireTableDataChanged();
     }
+
+    public void updateHeader() {
+        tblTeam.getTableHeader().setDefaultRenderer(new TeamHeaderRenderer(team.colour));
+        tblTeam.getMyModel().fireTableStructureChanged();
+    }
+
+    public void updateAll() {
+        tblTeam.getTableHeader().setDefaultRenderer(new TeamHeaderRenderer(team.colour));
+        tblTeam.getMyModel().fireTableStructureChanged();
+    }
     
 }

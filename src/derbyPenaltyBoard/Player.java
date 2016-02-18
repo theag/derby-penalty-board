@@ -12,11 +12,11 @@ package derbyPenaltyBoard;
 public class Player implements Comparable<Player> {
     
     public static final int MAX_PENALITIES = 7;
-    
+
     public String number;
     public final String[] penalties;
     public boolean isEjected;
-    
+
     public Player() {
         number = "";
         penalties = new String[MAX_PENALITIES];
@@ -34,5 +34,5 @@ public class Player implements Comparable<Player> {
             return number.compareTo(o.number);
         }
     }
-    
+
 }

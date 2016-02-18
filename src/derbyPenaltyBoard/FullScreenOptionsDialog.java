@@ -33,7 +33,7 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
     private static boolean rowPaddingSame = true;
     private static float cellFontSize = 20;
     private static int ejectedLineThickness = 1;
-    private static boolean showExitPopup = true;
+    private static boolean showOnSingleDevice = true;
     
     public static void showDialog(java.awt.Frame parent) {
         FullScreenOptionsDialog dialog = new FullScreenOptionsDialog(parent, true);
@@ -69,14 +69,13 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
         return ejectedLineThickness;
     }
     
-    public static boolean isShowingExitPopup() {
-        return showExitPopup;
+    public static boolean isOnSingleDevice() {
+        return showOnSingleDevice;
     }
 
-    public static void save() {
+    public static void save(String rv) {
         try {
             PrintWriter outFile = new PrintWriter(new File("options.ini"));
-            outFile.println(showExitPopup);
             outFile.println(headerFontSize);
             outFile.println(showTeamIdentifier);
             for(int i = 0; i < headerPadding.length; i++) {
@@ -89,16 +88,18 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
             }
             outFile.println(rowPaddingSame);
             outFile.println(ejectedLineThickness);
+            outFile.println(showOnSingleDevice);
+            outFile.println(rv);
             outFile.close();
         } catch (IOException ex) {
             Logger.getLogger(FullScreenOptionsDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    public static void load() {
+    public static String load() {
+        String rv = null;
         try {
             BufferedReader inFile = new BufferedReader(new FileReader("options.ini"));
-            showExitPopup = Boolean.parseBoolean(inFile.readLine());
             headerFontSize = Float.parseFloat(inFile.readLine());
             showTeamIdentifier = Boolean.parseBoolean(inFile.readLine());
             for(int i = 0; i < headerPadding.length; i++) {
@@ -111,10 +112,14 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
             }
             rowPaddingSame = Boolean.parseBoolean(inFile.readLine());
             ejectedLineThickness = Integer.parseInt(inFile.readLine());
+            showOnSingleDevice = Boolean.parseBoolean(inFile.readLine());
+            rv = inFile.readLine();
             inFile.close();
         } catch (IOException | NumberFormatException ex) {
             Logger.getLogger(FullScreenOptionsDialog.class.getName()).log(Level.SEVERE, null, ex);
+            rv = null;
         }
+        return rv;
     }
 
     /**
@@ -145,7 +150,10 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
         spnRowPadBottom.setEnabled(!cbRowPaddingSame.isSelected());
         spnRowPadRight.setEnabled(!cbRowPaddingSame.isSelected());
         spnEjectedThickness.setValue(ejectedLineThickness);
-        cbShowExitPopup.setSelected(showExitPopup);
+        cbSingleMonitor.setSelected(showOnSingleDevice);
+        lblDisplayOn.setEnabled(!cbSingleMonitor.isSelected());
+        lstDisplayOptions.setEnabled(!cbSingleMonitor.isSelected());
+        spDisplayOptions.setEnabled(!cbSingleMonitor.isSelected());
     }
 
     /**
@@ -157,8 +165,8 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        lblDisplayOn = new javax.swing.JLabel();
+        spDisplayOptions = new javax.swing.JScrollPane();
         lstDisplayOptions = new javax.swing.JList();
         btnCancel = new javax.swing.JButton();
         btnApply = new javax.swing.JButton();
@@ -182,18 +190,18 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
         cbRowPaddingSame = new javax.swing.JCheckBox();
         jLabel6 = new javax.swing.JLabel();
         spnEjectedThickness = new javax.swing.JSpinner();
-        cbShowExitPopup = new javax.swing.JCheckBox();
+        cbSingleMonitor = new javax.swing.JCheckBox();
 
         setTitle("Full Screen Options");
 
-        jLabel1.setText("Display on:");
+        lblDisplayOn.setText("Display on:");
 
         lstDisplayOptions.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
             public Object getElementAt(int i) { return strings[i]; }
         });
-        jScrollPane1.setViewportView(lstDisplayOptions);
+        spDisplayOptions.setViewportView(lstDisplayOptions);
 
         btnCancel.setText("Cancel");
         btnCancel.addActionListener(new java.awt.event.ActionListener() {
@@ -242,7 +250,12 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
 
         jLabel6.setText("Ejected Line Thickness");
 
-        cbShowExitPopup.setText("Show how to exit popup");
+        cbSingleMonitor.setText("Show on same monitor");
+        cbSingleMonitor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbSingleMonitorActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -251,19 +264,8 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 153, Short.MAX_VALUE)
-                        .addComponent(btnOK)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnApply)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnCancel))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(10, 10, 10)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jLabel1)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel3)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -305,19 +307,31 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
                                 .addComponent(jLabel6)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(spnEjectedThickness, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(cbShowExitPopup))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                            .addComponent(cbSingleMonitor))
+                        .addGap(0, 2, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(btnOK)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnApply)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnCancel))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(lblDisplayOn)
+                                .addComponent(spDisplayOptions, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(cbShowExitPopup)
-                .addGap(20, 20, 20)
-                .addComponent(jLabel1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblDisplayOn)
+                    .addComponent(cbSingleMonitor))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(spDisplayOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
@@ -347,7 +361,7 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
                     .addComponent(spnEjectedThickness, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 64, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 102, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnCancel)
                     .addComponent(btnApply)
@@ -383,6 +397,12 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
         spnRowPadRight.setEnabled(!cbRowPaddingSame.isSelected());
     }//GEN-LAST:event_cbRowPaddingSameActionPerformed
 
+    private void cbSingleMonitorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbSingleMonitorActionPerformed
+        lblDisplayOn.setEnabled(!cbSingleMonitor.isSelected());
+        lstDisplayOptions.setEnabled(!cbSingleMonitor.isSelected());
+        spDisplayOptions.setEnabled(!cbSingleMonitor.isSelected());
+    }//GEN-LAST:event_cbSingleMonitorActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnApply;
     private javax.swing.JButton btnCancel;
@@ -390,15 +410,15 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
     private javax.swing.JCheckBox cbDisplayIdentifier;
     private javax.swing.JCheckBox cbHeaderPaddingSame;
     private javax.swing.JCheckBox cbRowPaddingSame;
-    private javax.swing.JCheckBox cbShowExitPopup;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JCheckBox cbSingleMonitor;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblDisplayOn;
     private javax.swing.JList lstDisplayOptions;
+    private javax.swing.JScrollPane spDisplayOptions;
     private javax.swing.JSpinner spnCellFont;
     private javax.swing.JSpinner spnEjectedThickness;
     private javax.swing.JSpinner spnHeaderFont;
@@ -440,7 +460,7 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
         }
         rowPaddingSame = cbRowPaddingSame.isSelected();
         ejectedLineThickness = (int)spnEjectedThickness.getValue();
-        showExitPopup = cbShowExitPopup.isSelected();
+        showOnSingleDevice = cbSingleMonitor.isSelected();
     }
 
     private MyGraphicsDevice[] getScreenDevices() {

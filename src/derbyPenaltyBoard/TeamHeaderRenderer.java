@@ -32,35 +32,11 @@ public class TeamHeaderRenderer implements TableCellRenderer {
         JLabel rv = new JLabel((String)value);
         rv.setFont(rv.getFont().deriveFont(FullScreenOptionsDialog.getHeaderFontSize()));
         rv.setBackground(colour);
-        if(table.getRowCount() == 0) {
-            if(column == 0) {
-                rv.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.black), BorderFactory.createEmptyBorder(
+        rv.setBorder(BorderFactory.createEmptyBorder(
                         FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.TOP),
                         FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.LEFT),
                         FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.BOTTOM),
-                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.RIGHT))));
-            } else {
-                rv.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(1, 0, 1, 1, Color.black), BorderFactory.createEmptyBorder(
-                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.TOP),
-                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.LEFT),
-                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.BOTTOM),
-                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.RIGHT))));
-            }
-        } else {
-            if(column == 0) {
-                rv.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(1, 1, 0, 1, Color.black), BorderFactory.createEmptyBorder(
-                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.TOP),
-                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.LEFT),
-                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.BOTTOM),
-                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.RIGHT))));
-            } else {
-                rv.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(1, 0, 0, 1, Color.black), BorderFactory.createEmptyBorder(
-                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.TOP),
-                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.LEFT),
-                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.BOTTOM),
-                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.RIGHT))));
-            }
-        }
+                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.RIGHT)));
         if(column == 0 && FullScreenOptionsDialog.isShowingTeamIdentifier()) {
             rv.setForeground(contrast);
         } else {

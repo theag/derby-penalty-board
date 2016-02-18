@@ -26,10 +26,7 @@ public class FullScreenTable extends JTable {
         setModel(new FullScreenTeamTableModel(team));
         setShowGrid(true);
         setBorder(javax.swing.BorderFactory.createLineBorder(Color.black));
-        TeamHeaderRenderer headerRenderer = new TeamHeaderRenderer(team.colour);
-        for(int i = 0; i <= Player.MAX_PENALITIES; i++) {
-            getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
-        }
+        getTableHeader().setDefaultRenderer(new TeamHeaderRenderer(team.colour));
         TeamCellRenderer renderer = new TeamCellRenderer();
         setDefaultRenderer(Object.class, renderer);
         setRowHeight(renderer.getFontMetrics().getHeight()

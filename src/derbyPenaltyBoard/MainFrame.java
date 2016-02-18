@@ -5,9 +5,15 @@
  */
 package derbyPenaltyBoard;
 
+import java.awt.Frame;
 import java.awt.GraphicsDevice;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -21,6 +27,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     private Game game;
     private FullScreenForm fsf;
+    private MyFileChooser fc;
     
     /**
      * Creates new form MainFrame
@@ -28,12 +35,16 @@ public class MainFrame extends javax.swing.JFrame {
     public MainFrame() {
         initComponents();
         this.setLocationRelativeTo(null);
-        FullScreenOptionsDialog.load();
+        String directory = FullScreenOptionsDialog.load();
+        fc = new MyFileChooser("Text file", "txt");
+        if(directory != null) {
+            fc.setCurrentDirectory(new File(directory));
+        }
         game = new Game();
         splitPaneTeam.setLeftComponent(new TeamPanel(game.leftTeam));
         splitPaneTeam.setRightComponent(new TeamPanel(game.rightTeam));
         
-         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+        /*getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
             KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0), "FullScreen"); //$NON-NLS-1$
         getRootPane().getActionMap().put("FullScreen", new AbstractAction(){ //$NON-NLS-1$
             @Override
@@ -41,8 +52,8 @@ public class MainFrame extends javax.swing.JFrame {
             {
                 enterFullScreenFromKey();
             }
-        });
-        
+        });*/
+        miFullScreen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0));
     }
 
     /**
@@ -55,12 +66,21 @@ public class MainFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         splitPaneTeam = new javax.swing.JSplitPane();
-        jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
+        mbMain = new javax.swing.JMenuBar();
+        mFile = new javax.swing.JMenu();
         miNewGame = new javax.swing.JMenuItem();
-        jMenu2 = new javax.swing.JMenu();
+        jSeparator2 = new javax.swing.JPopupMenu.Separator();
+        mLeft = new javax.swing.JMenu();
+        miLeftNew = new javax.swing.JMenuItem();
+        miLeftOpen = new javax.swing.JMenuItem();
+        miLeftSave = new javax.swing.JMenuItem();
+        mRight = new javax.swing.JMenu();
+        miRightNew = new javax.swing.JMenuItem();
+        miRightOpen = new javax.swing.JMenuItem();
+        miRightSave = new javax.swing.JMenuItem();
+        mEdit = new javax.swing.JMenu();
         miTeamSwap = new javax.swing.JMenuItem();
-        jMenu3 = new javax.swing.JMenu();
+        mView = new javax.swing.JMenu();
         miFullScreen = new javax.swing.JCheckBoxMenuItem();
         miUpdateFullScreen = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
@@ -74,7 +94,6 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
-        splitPaneTeam.setDividerLocation(-1);
         splitPaneTeam.setDividerSize(0);
         splitPaneTeam.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
@@ -82,7 +101,7 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
-        jMenu1.setText("File");
+        mFile.setText("File");
 
         miNewGame.setText("New Game");
         miNewGame.addActionListener(new java.awt.event.ActionListener() {
@@ -90,11 +109,68 @@ public class MainFrame extends javax.swing.JFrame {
                 miNewGameActionPerformed(evt);
             }
         });
-        jMenu1.add(miNewGame);
+        mFile.add(miNewGame);
+        mFile.add(jSeparator2);
 
-        jMenuBar1.add(jMenu1);
+        mLeft.setText("Left Team");
 
-        jMenu2.setText("Edit");
+        miLeftNew.setText("New");
+        miLeftNew.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miLeftNewActionPerformed(evt);
+            }
+        });
+        mLeft.add(miLeftNew);
+
+        miLeftOpen.setText("Open");
+        miLeftOpen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miLeftOpenActionPerformed(evt);
+            }
+        });
+        mLeft.add(miLeftOpen);
+
+        miLeftSave.setText("Save");
+        miLeftSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miLeftSaveActionPerformed(evt);
+            }
+        });
+        mLeft.add(miLeftSave);
+
+        mFile.add(mLeft);
+
+        mRight.setText("Right Team");
+
+        miRightNew.setText("New");
+        miRightNew.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miRightNewActionPerformed(evt);
+            }
+        });
+        mRight.add(miRightNew);
+
+        miRightOpen.setText("Open");
+        miRightOpen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miRightOpenActionPerformed(evt);
+            }
+        });
+        mRight.add(miRightOpen);
+
+        miRightSave.setText("Save");
+        miRightSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miRightSaveActionPerformed(evt);
+            }
+        });
+        mRight.add(miRightSave);
+
+        mFile.add(mRight);
+
+        mbMain.add(mFile);
+
+        mEdit.setText("Edit");
 
         miTeamSwap.setText("Swap Teams");
         miTeamSwap.addActionListener(new java.awt.event.ActionListener() {
@@ -102,11 +178,11 @@ public class MainFrame extends javax.swing.JFrame {
                 miTeamSwapActionPerformed(evt);
             }
         });
-        jMenu2.add(miTeamSwap);
+        mEdit.add(miTeamSwap);
 
-        jMenuBar1.add(jMenu2);
+        mbMain.add(mEdit);
 
-        jMenu3.setText("View");
+        mView.setText("View");
 
         miFullScreen.setText("Full Screen");
         miFullScreen.addActionListener(new java.awt.event.ActionListener() {
@@ -114,7 +190,7 @@ public class MainFrame extends javax.swing.JFrame {
                 miFullScreenActionPerformed(evt);
             }
         });
-        jMenu3.add(miFullScreen);
+        mView.add(miFullScreen);
 
         miUpdateFullScreen.setText("Update Full Screen");
         miUpdateFullScreen.setEnabled(false);
@@ -123,8 +199,8 @@ public class MainFrame extends javax.swing.JFrame {
                 miUpdateFullScreenActionPerformed(evt);
             }
         });
-        jMenu3.add(miUpdateFullScreen);
-        jMenu3.add(jSeparator1);
+        mView.add(miUpdateFullScreen);
+        mView.add(jSeparator1);
 
         miFullScreenOptions.setText("Full Screen Options");
         miFullScreenOptions.addActionListener(new java.awt.event.ActionListener() {
@@ -132,11 +208,11 @@ public class MainFrame extends javax.swing.JFrame {
                 miFullScreenOptionsActionPerformed(evt);
             }
         });
-        jMenu3.add(miFullScreenOptions);
+        mView.add(miFullScreenOptions);
 
-        jMenuBar1.add(jMenu3);
+        mbMain.add(mView);
 
-        setJMenuBar(jMenuBar1);
+        setJMenuBar(mbMain);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -172,19 +248,41 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void miFullScreenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miFullScreenActionPerformed
         if(miFullScreen.isSelected()) {
-            ((TeamPanel)splitPaneTeam.getLeftComponent()).stopEditing();
-            ((TeamPanel)splitPaneTeam.getRightComponent()).stopEditing();
-            GraphicsDevice defaultScreenDevice = FullScreenOptionsDialog.getScreenDevice();
-            if(defaultScreenDevice.isFullScreenSupported()) {
-                if(FullScreenOptionsDialog.isShowingExitPopup()) {
-                    JOptionPane.showMessageDialog(this, "Entering full screen mode. Press the ESCAPE key to exit.");
+            TeamPanel leftPanel = (TeamPanel)splitPaneTeam.getLeftComponent();
+            leftPanel.stopEditing();
+            TeamPanel rightPanel = (TeamPanel)splitPaneTeam.getRightComponent();
+            rightPanel.stopEditing();
+            if(FullScreenOptionsDialog.isOnSingleDevice()) {
+                GraphicsDevice screenDevice = getGraphicsConfiguration().getDevice();
+                if(screenDevice.isFullScreenSupported()) {
+                    miUpdateFullScreen.setEnabled(true);
+                    fsf = new FullScreenForm(game, this);
+                    fsf.setVisible(true);
+                    screenDevice.setFullScreenWindow(fsf);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Full screen not availible.", "Warning", JOptionPane.WARNING_MESSAGE);
+                    miFullScreen.setSelected(false);
                 }
-                fsf = new FullScreenForm(game, this);
-                fsf.setVisible(true);
-                defaultScreenDevice.setFullScreenWindow(fsf);
-                miUpdateFullScreen.setEnabled(true);
             } else {
-                JOptionPane.showMessageDialog(this, "Full screen not availible.", "Warning", JOptionPane.WARNING_MESSAGE);
+                miUpdateFullScreen.setEnabled(true);
+                GraphicsDevice screenDevice = FullScreenOptionsDialog.getScreenDevice();
+                Rectangle bounds = screenDevice.getDefaultConfiguration().getBounds();
+                fsf = new FullScreenForm(game, this);
+                leftPanel.addTeamUpdateListener(new TeamUpdateEvent.TeamUpdateListener() {
+                    @Override
+                    public void onTeamUpdate(TeamUpdateEvent evt) {
+                        fsf.leftTeamUpdate(evt);
+                    }
+                });
+                rightPanel.addTeamUpdateListener(new TeamUpdateEvent.TeamUpdateListener() {
+                    @Override
+                    public void onTeamUpdate(TeamUpdateEvent evt) {
+                        fsf.rightTeamUpdate(evt);
+                    }
+                });
+                fsf.setVisible(true);
+                fsf.setLocation(bounds.getLocation());
+                fsf.setExtendedState(fsf.getExtendedState() | MAXIMIZED_BOTH);
             }
         } else {
             fsf.dispose();
@@ -203,8 +301,92 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_miUpdateFullScreenActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        FullScreenOptionsDialog.save();
+        FullScreenOptionsDialog.save(fc.getCurrentDirectory().getAbsolutePath());
     }//GEN-LAST:event_formWindowClosing
+
+    private void miLeftOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miLeftOpenActionPerformed
+        int result = fc.showOpenDialog(this);
+        if(result == MyFileChooser.APPROVE_OPTION) {
+            try {
+                game.leftTeam = Team.load(fc.getSelectedFile());
+                splitPaneTeam.setLeftComponent(new TeamPanel(game.leftTeam));
+                splitPaneTeam.setDividerLocation(0.5);
+            } catch (IOException ex) {
+                String[] options = new String[]{"Show Details", "OK"};
+                result = JOptionPane.showOptionDialog(this, fc.getSelectedFile().getName() +"\nError Opening.", "Open", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+                if(result == JOptionPane.YES_OPTION) {
+                    StringWriter sw = new StringWriter();
+                    ex.printStackTrace(new PrintWriter(sw));
+                    JOptionPane.showMessageDialog(this, sw.toString(), "Open - Details", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+    }//GEN-LAST:event_miLeftOpenActionPerformed
+
+    private void miLeftNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miLeftNewActionPerformed
+        game.leftTeam = new Team(false);
+        splitPaneTeam.setLeftComponent(new TeamPanel(game.leftTeam));
+        splitPaneTeam.setDividerLocation(0.5);
+    }//GEN-LAST:event_miLeftNewActionPerformed
+
+    private void miLeftSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miLeftSaveActionPerformed
+        int result = fc.showSaveDialog(this);
+        if(result == MyFileChooser.APPROVE_OPTION) {
+            try {
+                Team.save(game.leftTeam, fc.getSelectedFile());
+            } catch (IOException ex) {
+                String[] options = new String[]{"Show Details", "OK"};
+                result = JOptionPane.showOptionDialog(this, fc.getSelectedFile().getName() +"\nError Saving.", "Save", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+                if(result == JOptionPane.YES_OPTION) {
+                    StringWriter sw = new StringWriter();
+                    ex.printStackTrace(new PrintWriter(sw));
+                    JOptionPane.showMessageDialog(this, sw.toString(), "Save - Details", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+    }//GEN-LAST:event_miLeftSaveActionPerformed
+
+    private void miRightNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miRightNewActionPerformed
+        game.rightTeam = new Team(false);
+        splitPaneTeam.setRightComponent(new TeamPanel(game.rightTeam));
+        splitPaneTeam.setDividerLocation(0.5);
+    }//GEN-LAST:event_miRightNewActionPerformed
+
+    private void miRightOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miRightOpenActionPerformed
+        int result = fc.showOpenDialog(this);
+        if(result == MyFileChooser.APPROVE_OPTION) {
+            try {
+                game.rightTeam = Team.load(fc.getSelectedFile());
+                splitPaneTeam.setRightComponent(new TeamPanel(game.rightTeam));
+                splitPaneTeam.setDividerLocation(0.5);
+            } catch (IOException ex) {
+                String[] options = new String[]{"Show Details", "OK"};
+                result = JOptionPane.showOptionDialog(this, fc.getSelectedFile().getName() +"\nError Opening.", "Open", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+                if(result == JOptionPane.YES_OPTION) {
+                    StringWriter sw = new StringWriter();
+                    ex.printStackTrace(new PrintWriter(sw));
+                    JOptionPane.showMessageDialog(this, sw.toString(), "Open - Details", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+    }//GEN-LAST:event_miRightOpenActionPerformed
+
+    private void miRightSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miRightSaveActionPerformed
+        int result = fc.showSaveDialog(this);
+        if(result == MyFileChooser.APPROVE_OPTION) {
+            try {
+                Team.save(game.rightTeam, fc.getSelectedFile());
+            } catch (IOException ex) {
+                String[] options = new String[]{"Show Details", "OK"};
+                result = JOptionPane.showOptionDialog(this, fc.getSelectedFile().getName() +"\nError Saving.", "Save", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+                if(result == JOptionPane.YES_OPTION) {
+                    StringWriter sw = new StringWriter();
+                    ex.printStackTrace(new PrintWriter(sw));
+                    JOptionPane.showMessageDialog(this, sw.toString(), "Save - Details", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+    }//GEN-LAST:event_miRightSaveActionPerformed
 
     /**
      * @param args the command line arguments
@@ -240,14 +422,23 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenu jMenu2;
-    private javax.swing.JMenu jMenu3;
-    private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JPopupMenu.Separator jSeparator2;
+    private javax.swing.JMenu mEdit;
+    private javax.swing.JMenu mFile;
+    private javax.swing.JMenu mLeft;
+    private javax.swing.JMenu mRight;
+    private javax.swing.JMenu mView;
+    private javax.swing.JMenuBar mbMain;
     private javax.swing.JCheckBoxMenuItem miFullScreen;
     private javax.swing.JMenuItem miFullScreenOptions;
+    private javax.swing.JMenuItem miLeftNew;
+    private javax.swing.JMenuItem miLeftOpen;
+    private javax.swing.JMenuItem miLeftSave;
     private javax.swing.JMenuItem miNewGame;
+    private javax.swing.JMenuItem miRightNew;
+    private javax.swing.JMenuItem miRightOpen;
+    private javax.swing.JMenuItem miRightSave;
     private javax.swing.JMenuItem miTeamSwap;
     private javax.swing.JMenuItem miUpdateFullScreen;
     private javax.swing.JSplitPane splitPaneTeam;
@@ -257,24 +448,6 @@ public class MainFrame extends javax.swing.JFrame {
         fsf.dispose();
         miFullScreen.setSelected(false);
         miUpdateFullScreen.setEnabled(false);
-    }
-    
-    private void enterFullScreenFromKey() {
-        ((TeamPanel)splitPaneTeam.getLeftComponent()).stopEditing();
-        ((TeamPanel)splitPaneTeam.getRightComponent()).stopEditing();
-        GraphicsDevice defaultScreenDevice = FullScreenOptionsDialog.getScreenDevice();
-        if(defaultScreenDevice.isFullScreenSupported()) {
-            if(FullScreenOptionsDialog.isShowingExitPopup()) {
-                JOptionPane.showMessageDialog(this, "Entering full screen mode. Press the ESCAPE key to exit.");
-            }
-            fsf = new FullScreenForm(game, this);
-            fsf.setVisible(true);
-            defaultScreenDevice.setFullScreenWindow(fsf);
-            miUpdateFullScreen.setEnabled(true);
-            miFullScreen.setSelected(true);
-        } else {
-            JOptionPane.showMessageDialog(this, "Full screen not availible.", "Warning", JOptionPane.WARNING_MESSAGE);
-        }
     }
     
 }

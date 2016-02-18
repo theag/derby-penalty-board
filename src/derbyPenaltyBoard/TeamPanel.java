@@ -7,7 +7,7 @@ package derbyPenaltyBoard;
 
 import javax.swing.JColorChooser;
 import javax.swing.JTable;
-import javax.swing.table.TableColumn;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -85,17 +85,20 @@ public class TeamPanel extends javax.swing.JPanel {
             }
         ));
         tblTeam.setRowSelectionAllowed(false);
+        tblTeam.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                tblTeamFocusLost(evt);
+            }
+        });
         tblTeam.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblTeamMouseClicked(evt);
+            }
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 tblTeamMousePressed(evt);
             }
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 tblTeamMouseReleased(evt);
-            }
-        });
-        tblTeam.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentResized(java.awt.event.ComponentEvent evt) {
-                tblTeamComponentResized(evt);
             }
         });
         jScrollPane1.setViewportView(tblTeam);
@@ -151,25 +154,20 @@ public class TeamPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void tblTeamComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_tblTeamComponentResized
-        TableColumn column = tblTeam.getColumnModel().getColumn(0);
-        column.setPreferredWidth(column.getPreferredWidth()*2);
-    }//GEN-LAST:event_tblTeamComponentResized
-
     private void btnSortActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSortActionPerformed
-        if(tblTeam.isEditing()) {
-            tblTeam.getCellEditor().stopCellEditing();
-        }
         ((TeamTableModel)tblTeam.getModel()).sort();
+        fireTeamTableUpdated();
     }//GEN-LAST:event_btnSortActionPerformed
 
     private void btnColourActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnColourActionPerformed
         team.colour = JColorChooser.showDialog(this, "Choose Team Colour", btnColour.getBackground());
         btnColour.setBackground(team.colour);
+        fireTeamColourUpdated();
     }//GEN-LAST:event_btnColourActionPerformed
 
     private void txtIdentifierFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtIdentifierFocusLost
         team.identifier = txtIdentifier.getText();
+        fireTeamIdentifierUpdated();
     }//GEN-LAST:event_txtIdentifierFocusLost
 
     private void tblTeamMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblTeamMouseReleased
@@ -183,6 +181,7 @@ public class TeamPanel extends javax.swing.JPanel {
     private void tblTeamMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblTeamMousePressed
         if(tblTeam.isEditing()) {
             tblTeam.getCellEditor().stopCellEditing();
+            fireTeamTableUpdated();
         }
         rowClicked = tblTeam.rowAtPoint(evt.getPoint());
         if(team.players[rowClicked].number.isEmpty()) {
@@ -193,7 +192,26 @@ public class TeamPanel extends javax.swing.JPanel {
     private void miEjectedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miEjectedActionPerformed
         team.players[rowClicked].isEjected = miEjected.isSelected();
         ((TeamTableModel)tblTeam.getModel()).fireTableDataChanged();
+        fireTeamTableUpdated();
     }//GEN-LAST:event_miEjectedActionPerformed
+
+    private void tblTeamMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblTeamMouseClicked
+        if(SwingUtilities.isLeftMouseButton(evt)) {
+            if(tblTeam.columnAtPoint(evt.getPoint()) == TeamTableModel.IS_EJECTED_COLUMN) {
+                int row = tblTeam.rowAtPoint(evt.getPoint());
+                team.players[row].isEjected = !team.players[row].isEjected;
+                ((TeamTableModel)tblTeam.getModel()).fireTableDataChanged();
+                fireTeamTableUpdated();
+            }
+        }
+    }//GEN-LAST:event_tblTeamMouseClicked
+
+    private void tblTeamFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tblTeamFocusLost
+        if(tblTeam.isEditing()) {
+            tblTeam.getCellEditor().stopCellEditing();
+            fireTeamTableUpdated();
+        }
+    }//GEN-LAST:event_tblTeamFocusLost
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -212,6 +230,35 @@ public class TeamPanel extends javax.swing.JPanel {
     public void stopEditing() {
         if(tblTeam.isEditing()) {
             tblTeam.getCellEditor().stopCellEditing();
+        }
+    }
+    
+    public void addTeamUpdateListener(TeamUpdateEvent.TeamUpdateListener listener) {
+        listenerList.add(TeamUpdateEvent.TeamUpdateListener.class, listener);
+        ((TeamTableModel)tblTeam.getModel()).addTeamUpdateListener(listener);
+    }
+
+    private void fireTeamTableUpdated() {
+        TeamUpdateEvent evt = new TeamUpdateEvent(TeamUpdateEvent.TABLE, this, team);
+        TeamUpdateEvent.TeamUpdateListener[] listeners = listenerList.getListeners(TeamUpdateEvent.TeamUpdateListener.class);
+        for(TeamUpdateEvent.TeamUpdateListener listener : listeners) {
+            listener.onTeamUpdate(evt);
+        }
+    }
+
+    private void fireTeamColourUpdated() {
+        TeamUpdateEvent evt = new TeamUpdateEvent(TeamUpdateEvent.COLOUR, this, team);
+        TeamUpdateEvent.TeamUpdateListener[] listeners = listenerList.getListeners(TeamUpdateEvent.TeamUpdateListener.class);
+        for(TeamUpdateEvent.TeamUpdateListener listener : listeners) {
+            listener.onTeamUpdate(evt);
+        }
+    }
+
+    private void fireTeamIdentifierUpdated() {
+        TeamUpdateEvent evt = new TeamUpdateEvent(TeamUpdateEvent.IDENTIFIER, this, team);
+        TeamUpdateEvent.TeamUpdateListener[] listeners = listenerList.getListeners(TeamUpdateEvent.TeamUpdateListener.class);
+        for(TeamUpdateEvent.TeamUpdateListener listener : listeners) {
+            listener.onTeamUpdate(evt);
         }
     }
 }

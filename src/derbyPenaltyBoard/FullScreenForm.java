@@ -32,7 +32,7 @@ public class FullScreenForm extends javax.swing.JFrame {
         initComponents();
         
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-            KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "Cancel"); //$NON-NLS-1$
+            KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0), "Cancel"); //$NON-NLS-1$
         getRootPane().getActionMap().put("Cancel", new AbstractAction(){ //$NON-NLS-1$
             @Override
             public void actionPerformed(ActionEvent e)
@@ -114,8 +114,32 @@ public class FullScreenForm extends javax.swing.JFrame {
         }
     }
 
-    void updateTables() {
-        ((FullScreenPanel)splitPaneTeam.getLeftComponent()).updateTable();
-        ((FullScreenPanel)splitPaneTeam.getRightComponent()).updateTable();
+    public void updateTables() {
+        ((FullScreenPanel)splitPaneTeam.getLeftComponent()).updateAll();
+        ((FullScreenPanel)splitPaneTeam.getRightComponent()).updateAll();
+    }
+
+    public void leftTeamUpdate(TeamUpdateEvent evt) {
+        switch(evt.getType()) {
+            case TeamUpdateEvent.TABLE:
+                ((FullScreenPanel)splitPaneTeam.getLeftComponent()).updateTable();
+                break;
+            case TeamUpdateEvent.COLOUR:
+            case TeamUpdateEvent.IDENTIFIER:
+                ((FullScreenPanel)splitPaneTeam.getLeftComponent()).updateHeader();
+                break;
+        }
+    }
+
+    public void rightTeamUpdate(TeamUpdateEvent evt) {
+        switch(evt.getType()) {
+            case TeamUpdateEvent.TABLE:
+                ((FullScreenPanel)splitPaneTeam.getRightComponent()).updateTable();
+                break;
+            case TeamUpdateEvent.COLOUR:
+            case TeamUpdateEvent.IDENTIFIER:
+                ((FullScreenPanel)splitPaneTeam.getRightComponent()).updateHeader();
+                break;
+        }
     }
 }

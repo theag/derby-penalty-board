@@ -15,8 +15,7 @@ import javax.swing.table.AbstractTableModel;
  */
 public class TeamTableModel extends AbstractTableModel {
     
-    private static final String[] columnNames = {"Player", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "Is Ejected"};
-    //private static final Class[] columnClasses = {String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class, Boolean.class};
+    public final static int IS_EJECTED_COLUMN = Player.MAX_PENALITIES + 1;
     
     private final Team team;
     
@@ -36,7 +35,13 @@ public class TeamTableModel extends AbstractTableModel {
     
     @Override
     public String getColumnName(int column) {
-        return columnNames[column];
+        if(column == 0) {
+            return "Player";
+        } else if(column == Player.MAX_PENALITIES + 1) {
+            return "Ejected";
+        } else {
+            return "P" +column;
+        }
     }
     
     @Override
@@ -69,11 +74,20 @@ public class TeamTableModel extends AbstractTableModel {
             String penalty = (String)aValue;
             team.players[rowIndex].penalties[columnIndex-1] = penalty.toUpperCase();
         }
+        TeamUpdateEvent evt = new TeamUpdateEvent(TeamUpdateEvent.TABLE, null, team);
+        TeamUpdateEvent.TeamUpdateListener[] listeners = listenerList.getListeners(TeamUpdateEvent.TeamUpdateListener.class);
+        for(TeamUpdateEvent.TeamUpdateListener listener : listeners) {
+            listener.onTeamUpdate(evt);
+        }
     }
 
     public void sort() {
         team.sortPlayers();
         this.fireTableDataChanged();
+    }
+    
+    public void addTeamUpdateListener(TeamUpdateEvent.TeamUpdateListener listener) {
+        listenerList.add(TeamUpdateEvent.TeamUpdateListener.class, listener);
     }
     
 }
