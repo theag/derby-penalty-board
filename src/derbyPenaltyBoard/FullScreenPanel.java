@@ -101,7 +101,7 @@ public class FullScreenPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void miEjectedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miEjectedActionPerformed
-        team.players[rowClicked].isEjected = miEjected.isSelected();
+        team.players.get(rowClicked).isEjected = miEjected.isSelected();
         tblTeam.repaint();
     }//GEN-LAST:event_miEjectedActionPerformed
 
@@ -114,8 +114,8 @@ public class FullScreenPanel extends javax.swing.JPanel {
   
     private void tblTeamMouseReleased(java.awt.event.MouseEvent evt) {                                      
         if(evt.isPopupTrigger() && rowClicked >= 0) {
-            miNumber.setText(team.players[rowClicked].number);
-            miEjected.setSelected(team.players[rowClicked].isEjected);
+            miNumber.setText(team.players.get(rowClicked).number);
+            miEjected.setSelected(team.players.get(rowClicked).isEjected);
             popupPlayer.show(tblTeam, evt.getX(), evt.getY());
         }
     }                                     
@@ -125,9 +125,6 @@ public class FullScreenPanel extends javax.swing.JPanel {
             tblTeam.getCellEditor().stopCellEditing();
         }
         rowClicked = tblTeam.rowAtPoint(evt.getPoint());
-        if(team.players[rowClicked].number.isEmpty()) {
-            rowClicked = -1;
-        }
     }
     
     public void updateTable() {
@@ -147,7 +144,7 @@ public class FullScreenPanel extends javax.swing.JPanel {
 
     public void updateAll() {
         updateHeader();
-        TeamCellRenderer renderer = (TeamCellRenderer)tblTeam.getCellRenderer(0, 0);
+        FullScreenCellRenderer renderer = (FullScreenCellRenderer)tblTeam.getCellRenderer(0, 0);
         renderer.resetFont();
         tblTeam.setRowHeight(renderer.getFontMetrics().getHeight()
                 + FullScreenOptionsDialog.getRowPadding(FullScreenOptionsDialog.TOP)

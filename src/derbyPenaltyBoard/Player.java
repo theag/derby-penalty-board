@@ -16,6 +16,7 @@ public class Player implements Comparable<Player> {
     public String number;
     public final String[] penalties;
     public boolean isEjected;
+    public boolean isRostered;
 
     public Player() {
         number = "";
@@ -24,14 +25,37 @@ public class Player implements Comparable<Player> {
             penalties[i] = "";
         }
         isEjected = false;
+        isRostered = true;
+    }
+
+    public Player(String number) {
+        this.number = number;
+        penalties = new String[MAX_PENALITIES];
+        for(int i = 0; i < MAX_PENALITIES; i++) {
+            penalties[i] = "";
+        }
+        isEjected = false;
+        isRostered = true;
     }
 
     @Override
     public int compareTo(Player o) {
         if(number.isEmpty() || o.number.isEmpty()) {
-            return -number.compareTo(o.number);
+            if(isRostered && !o.isRostered) {
+                return 1;
+            } else if(!isRostered && o.isRostered) {
+                return -1;
+            } else {
+                return -number.compareTo(o.number);
+            }
         } else {
-            return number.compareTo(o.number);
+            if(isRostered && !o.isRostered) {
+                return -1;
+            } else if(!isRostered && o.isRostered) {
+                return 1;
+            } else {
+                return number.compareTo(o.number);
+            }
         }
     }
 

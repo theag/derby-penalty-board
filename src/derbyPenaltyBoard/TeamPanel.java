@@ -6,8 +6,9 @@
 package derbyPenaltyBoard;
 
 import javax.swing.JColorChooser;
-import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 /**
  *
@@ -15,6 +16,8 @@ import javax.swing.SwingUtilities;
  */
 public class TeamPanel extends javax.swing.JPanel {
 
+    private static final int rowHeaderWidth = 20;
+    
     private Team team;
     private int rowClicked;
     
@@ -24,7 +27,10 @@ public class TeamPanel extends javax.swing.JPanel {
     public TeamPanel(Team team) {
         initComponents();
         tblTeam.setModel(new TeamTableModel(team));
-        tblTeam.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+        TeamCellRenderer renderer = new TeamCellRenderer();
+        tblTeam.setDefaultRenderer(Object.class, renderer);
+        tblTeam.setDefaultRenderer(Boolean.class, renderer);
+        tblTeam.getColumnModel().getColumn(TeamTableModel.ROW_HEADER_COLUMN).setMaxWidth(rowHeaderWidth);
         btnColour.setBackground(team.colour);
         txtIdentifier.setText(team.identifier);
         this.team = team;
@@ -110,6 +116,11 @@ public class TeamPanel extends javax.swing.JPanel {
                 tblTeamMouseReleased(evt);
             }
         });
+        tblTeam.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                tblTeamKeyPressed(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblTeam);
 
         btnSort.setText("Sort");
@@ -181,7 +192,7 @@ public class TeamPanel extends javax.swing.JPanel {
 
     private void tblTeamMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblTeamMouseReleased
         if(evt.isPopupTrigger() && rowClicked >= 0) {
-            miNumber.setText(team.players[rowClicked].number);
+            miNumber.setText(team.players.get(rowClicked).number);
             miMoveUp.setEnabled(rowClicked > 0);
             miMoveDown.setEnabled(rowClicked < Team.MAX_ROSTER - 1);
             popupPlayer.show(tblTeam, evt.getX(), evt.getY());
@@ -189,23 +200,33 @@ public class TeamPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_tblTeamMouseReleased
 
     private void tblTeamMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblTeamMousePressed
+        tblTeam.setRowSelectionAllowed(false);
         if(tblTeam.isEditing()) {
             tblTeam.getCellEditor().stopCellEditing();
             fireTeamTableUpdated();
         }
         rowClicked = tblTeam.rowAtPoint(evt.getPoint());
-        if(team.players[rowClicked].number.isEmpty()) {
+        if(rowClicked >= team.players.size() || team.players.get(rowClicked).number.isEmpty()) {
             rowClicked = -1;
         }
     }//GEN-LAST:event_tblTeamMousePressed
 
     private void tblTeamMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblTeamMouseClicked
         if(SwingUtilities.isLeftMouseButton(evt)) {
-            if(tblTeam.columnAtPoint(evt.getPoint()) == TeamTableModel.IS_EJECTED_COLUMN) {
-                int row = tblTeam.rowAtPoint(evt.getPoint());
-                team.players[row].isEjected = !team.players[row].isEjected;
-                ((TeamTableModel)tblTeam.getModel()).fireTableDataChanged();
-                fireTeamTableUpdated();
+            int row = tblTeam.rowAtPoint(evt.getPoint());
+            if(row < team.players.size()) {
+                if(tblTeam.columnAtPoint(evt.getPoint()) == TeamTableModel.IS_EJECTED_COLUMN) {
+                    team.players.get(row).isEjected = !team.players.get(row).isEjected;
+                    ((TeamTableModel)tblTeam.getModel()).fireTableDataChanged();
+                    fireTeamTableUpdated();
+                } else if(tblTeam.columnAtPoint(evt.getPoint()) == TeamTableModel.IS_ROSTERED_COLUMN) {
+                    team.players.get(row).isRostered = !team.players.get(row).isRostered;
+                    ((TeamTableModel)tblTeam.getModel()).fireTableDataChanged();
+                    fireTeamTableUpdated();
+                } else if(tblTeam.columnAtPoint(evt.getPoint()) == TeamTableModel.ROW_HEADER_COLUMN) {
+                    tblTeam.setRowSelectionAllowed(true);
+                    tblTeam.setRowSelectionInterval(row, row);
+                }
             }
         }
     }//GEN-LAST:event_tblTeamMouseClicked
@@ -228,6 +249,14 @@ public class TeamPanel extends javax.swing.JPanel {
         ((TeamTableModel)tblTeam.getModel()).fireTableDataChanged();
         fireTeamTableUpdated();
     }//GEN-LAST:event_miMoveDownActionPerformed
+
+    private void tblTeamKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tblTeamKeyPressed
+        if(evt.getKeyCode() == java.awt.event.KeyEvent.VK_DELETE && tblTeam.getRowSelectionAllowed()) {
+            team.players.remove(tblTeam.getSelectedRow());
+            ((TeamTableModel)tblTeam.getModel()).fireTableDataChanged();
+            fireTeamTableUpdated();
+        }
+    }//GEN-LAST:event_tblTeamKeyPressed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

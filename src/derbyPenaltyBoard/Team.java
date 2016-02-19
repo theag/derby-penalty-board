@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  *
@@ -27,9 +29,8 @@ public class Team {
             rv.colour = Color.decode(colour);
         }
         String line = inFile.readLine();
-        int index = 0;
-        while(line != null && index < MAX_ROSTER) {
-            rv.players[index++].number = line;
+        while(line != null) {
+            rv.players.add(new Player(line));
             line = inFile.readLine();
         }
         inFile.close();
@@ -63,7 +64,7 @@ public class Team {
     
     public String identifier;
     public Color colour;
-    public final Player[] players;
+    public final ArrayList<Player> players;
     
     public Team(boolean isBlack) {
         if(isBlack) {
@@ -73,51 +74,39 @@ public class Team {
             identifier = "White";
             colour = Color.white;
         }
-        players = new Player[MAX_ROSTER];
-        for(int i = 0; i < MAX_ROSTER; i++) {
-            players[i] = new Player();
-        }
+        players = new ArrayList<Player>(MAX_ROSTER);
     }
     
     private Team(String identifier) {
         this.identifier = identifier;
         this.colour = Color.white;
-        players = new Player[MAX_ROSTER];
-        for(int i = 0; i < MAX_ROSTER; i++) {
-            players[i] = new Player();
-        }
+        players = new ArrayList<Player>(MAX_ROSTER);
     }
     
     public void sortPlayers() {
-        Player temp;
-        int j;
-        for(int i = 1; i < MAX_ROSTER; i++) {
-            j = i;
-            while(j > 0 && players[j-1].compareTo(players[j]) > 0) {
-                temp = players[j-1];
-                players[j-1] = players[j];
-                players[j] = temp;
-                j--;
-            }
-        }
+        Collections.sort(players);
     }
 
     public int getActivePlayerCount() {
         int count = 0;
-        for(int i = 0; i < players.length; i++) {
-            if(!players[i].number.trim().isEmpty()) {
+        for(Player player : players) {
+            if(!player.number.trim().isEmpty() && player.isRostered) {
                 count++;
             }
         }
-        return count;
+        if(count > MAX_ROSTER) {
+            return MAX_ROSTER;
+        } else {
+            return count;
+        }
     }
 
     public Player getActivePlayer(int index) {
         int count = 0;
-        for(int i = 0; i < players.length; i++) {
-            if(!players[i].number.trim().isEmpty()) {
+        for(Player player : players) {
+            if (!player.number.trim().isEmpty() && player.isRostered) {
                 if(count == index) {
-                    return players[i];
+                    return player;
                 } else {
                     count++;
                 }
@@ -127,15 +116,13 @@ public class Team {
     }
 
     public void movePlayerUp(int index) {
-        Player temp = players[index-1];
-        players[index-1] = players[index];
-        players[index] = temp;
+        Player player = players.remove(index);
+        players.add(index-1, player);
     }
 
     public void movePlayerDown(int index) {
-        Player temp = players[index+1];
-        players[index+1] = players[index];
-        players[index] = temp;
+        Player player = players.remove(index);
+        players.add(index+1, player);
     }
 
     public Color getContrast() {

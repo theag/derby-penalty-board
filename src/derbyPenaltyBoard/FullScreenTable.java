@@ -26,7 +26,7 @@ public class FullScreenTable extends JTable {
         setShowGrid(true);
         setBorder(javax.swing.BorderFactory.createLineBorder(Color.black));
         setTableHeader(null);
-        TeamCellRenderer renderer = new TeamCellRenderer();
+        FullScreenCellRenderer renderer = new FullScreenCellRenderer();
         setDefaultRenderer(Object.class, renderer);
         setRowHeight(renderer.getFontMetrics().getHeight()
                 + FullScreenOptionsDialog.getRowPadding(FullScreenOptionsDialog.TOP)
