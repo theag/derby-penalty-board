@@ -357,7 +357,15 @@ public class MainFrame extends javax.swing.JFrame {
                 if(fsf != null && fsf.isDisplayable()) {
                     fsf.resetLeft(game.leftTeam);
                 }
-            } catch (IOException | NumberFormatException ex) {
+            } catch (IOException ex) {
+                String[] options = new String[]{"Show Details", "OK"};
+                result = JOptionPane.showOptionDialog(this, fc.getSelectedFile().getName() +"\nError Opening.", "Open", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+                if(result == JOptionPane.YES_OPTION) {
+                    StringWriter sw = new StringWriter();
+                    ex.printStackTrace(new PrintWriter(sw));
+                    JOptionPane.showMessageDialog(this, sw.toString(), "Open - Details", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (NumberFormatException ex) {
                 String[] options = new String[]{"Show Details", "OK"};
                 result = JOptionPane.showOptionDialog(this, fc.getSelectedFile().getName() +"\nError Opening.", "Open", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
                 if(result == JOptionPane.YES_OPTION) {
@@ -408,7 +416,15 @@ public class MainFrame extends javax.swing.JFrame {
                 if(fsf != null && fsf.isDisplayable()) {
                     fsf.resetRight(game.rightTeam);
                 }
-            } catch (IOException | NumberFormatException ex) {
+            } catch (IOException ex) {
+                String[] options = new String[]{"Show Details", "OK"};
+                result = JOptionPane.showOptionDialog(this, fc.getSelectedFile().getName() +"\nError Opening.", "Open", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+                if(result == JOptionPane.YES_OPTION) {
+                    StringWriter sw = new StringWriter();
+                    ex.printStackTrace(new PrintWriter(sw));
+                    JOptionPane.showMessageDialog(this, sw.toString(), "Open - Details", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (NumberFormatException ex) {
                 String[] options = new String[]{"Show Details", "OK"};
                 result = JOptionPane.showOptionDialog(this, fc.getSelectedFile().getName() +"\nError Opening.", "Open", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
                 if(result == JOptionPane.YES_OPTION) {
@@ -494,8 +510,11 @@ public class MainFrame extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> {
-            new MainFrame().setVisible(true);
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+                new MainFrame().setVisible(true);
+            }
         });
     }
 

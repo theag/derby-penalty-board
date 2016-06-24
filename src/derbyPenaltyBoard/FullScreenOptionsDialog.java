@@ -124,7 +124,10 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
             showOnSingleDevice = Boolean.parseBoolean(inFile.readLine());
             rv = inFile.readLine();
             inFile.close();
-        } catch (IOException | NumberFormatException ex) {
+        } catch (IOException ex) {
+            Logger.getLogger(FullScreenOptionsDialog.class.getName()).log(Level.SEVERE, null, ex);
+            rv = null;
+        } catch (NumberFormatException ex) {
             Logger.getLogger(FullScreenOptionsDialog.class.getName()).log(Level.SEVERE, null, ex);
             rv = null;
         }
@@ -471,32 +474,32 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
 
     private void doSave() {
         graphicsDevice = (MyGraphicsDevice)lstDisplayOptions.getSelectedValue();
-        headerFontSize = (int)spnHeaderFont.getValue();
+        headerFontSize = (Integer)spnHeaderFont.getValue();
         showTeamIdentifier = cbDisplayIdentifier.isSelected();
-        cellFontSize = (int)spnCellFont.getValue();
-        headerPadding[0] = (int)spnHeaderPadTop.getValue();
+        cellFontSize = (Integer)spnCellFont.getValue();
+        headerPadding[0] = (Integer)spnHeaderPadTop.getValue();
         if(!cbHeaderPaddingSame.isSelected()) {
-            headerPadding[1] = (int)spnHeaderPadLeft.getValue();
-            headerPadding[2] = (int)spnHeaderPadBottom.getValue();
-            headerPadding[3] = (int)spnHeaderPadRight.getValue();
+            headerPadding[1] = (Integer)spnHeaderPadLeft.getValue();
+            headerPadding[2] = (Integer)spnHeaderPadBottom.getValue();
+            headerPadding[3] = (Integer)spnHeaderPadRight.getValue();
         } else {
-            headerPadding[1] = (int)spnHeaderPadTop.getValue();
-            headerPadding[2] = (int)spnHeaderPadTop.getValue();
-            headerPadding[3] = (int)spnHeaderPadTop.getValue();
+            headerPadding[1] = (Integer)spnHeaderPadTop.getValue();
+            headerPadding[2] = (Integer)spnHeaderPadTop.getValue();
+            headerPadding[3] = (Integer)spnHeaderPadTop.getValue();
         }
         headerPaddingSame = cbHeaderPaddingSame.isSelected();
-        rowPadding[0] = (int)spnRowPadTop.getValue();
+        rowPadding[0] = (Integer)spnRowPadTop.getValue();
         if(!cbRowPaddingSame.isSelected()) {
-            rowPadding[1] = (int)spnRowPadLeft.getValue();
-            rowPadding[2] = (int)spnRowPadBottom.getValue();
-            rowPadding[3] = (int)spnRowPadRight.getValue();
+            rowPadding[1] = (Integer)spnRowPadLeft.getValue();
+            rowPadding[2] = (Integer)spnRowPadBottom.getValue();
+            rowPadding[3] = (Integer)spnRowPadRight.getValue();
         } else {
-            rowPadding[1] = (int)spnRowPadTop.getValue();
-            rowPadding[2] = (int)spnRowPadTop.getValue();
-            rowPadding[3] = (int)spnRowPadTop.getValue();
+            rowPadding[1] = (Integer)spnRowPadTop.getValue();
+            rowPadding[2] = (Integer)spnRowPadTop.getValue();
+            rowPadding[3] = (Integer)spnRowPadTop.getValue();
         }
         rowPaddingSame = cbRowPaddingSame.isSelected();
-        ejectedLineThickness = (int)spnEjectedThickness.getValue();
+        ejectedLineThickness = (Integer)spnEjectedThickness.getValue();
         showOnSingleDevice = cbSingleMonitor.isSelected();
         if(fsf != null) {
             fsf.updateTables();
