@@ -34,5 +34,14 @@ public class Player implements Comparable<Player> {
             return number.compareTo(o.number);
         }
     }
+    
+    String siteString() {
+        String rv = "{number: \"" +number +"\", penalties: [\"" +penalties[0] +"\"";
+        for(int i = 1; i < penalties.length; i++) {
+            rv += ", \"" +penalties[i] +"\"";
+        }
+        rv += "], isEjected: " +isEjected +"}";
+        return rv;
+    }
 
 }

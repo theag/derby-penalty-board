@@ -5,6 +5,7 @@
  */
 package derbyPenaltyBoard;
 
+import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -61,7 +62,10 @@ public class FullScreenTeamTableModel extends AbstractTableModel {
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         String penalty = (String)aValue;
-            team.getActivePlayer(rowIndex).penalties[columnIndex-1] = penalty.toUpperCase();
+        team.getActivePlayer(rowIndex).penalties[columnIndex-1] = penalty.toUpperCase();
+        for(TableModelListener listener : getTableModelListeners()) {
+            listener.tableChanged(null);
+        }
     }
     
 }

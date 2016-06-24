@@ -13,13 +13,15 @@ import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.TableColumn;
 
 /**
  *
  * @author nbp184
  */
-public class FullScreenForm extends javax.swing.JFrame {
+public class FullScreenForm extends javax.swing.JFrame implements TableModelListener {
 
     private MainFrame mainFrame;
     
@@ -39,8 +41,13 @@ public class FullScreenForm extends javax.swing.JFrame {
             }
         });
         
-        splitPaneTeam.setLeftComponent(new FullScreenPanel(game.leftTeam));
-        splitPaneTeam.setRightComponent(new FullScreenPanel(game.rightTeam));
+        mainFrame.updateSite();
+        FullScreenPanel panel = new FullScreenPanel(game.leftTeam);
+        panel.addTableModelListener(this);
+        splitPaneTeam.setLeftComponent(panel);
+        panel = new FullScreenPanel(game.rightTeam);
+        panel.addTableModelListener(this);
+        splitPaneTeam.setRightComponent(panel);
         
         this.mainFrame = mainFrame;
     }
@@ -115,6 +122,7 @@ public class FullScreenForm extends javax.swing.JFrame {
     public void updateTables() {
         ((FullScreenPanel)splitPaneTeam.getLeftComponent()).updateAll();
         ((FullScreenPanel)splitPaneTeam.getRightComponent()).updateAll();
+        mainFrame.updateSite();
     }
 
     public void leftTeamUpdate(TeamUpdateEvent evt) {
@@ -155,5 +163,17 @@ public class FullScreenForm extends javax.swing.JFrame {
         splitPaneTeam.setLeftComponent(new FullScreenPanel(game.leftTeam));
         splitPaneTeam.setRightComponent(new FullScreenPanel(game.rightTeam));
         splitPaneTeam.setDividerLocation(0.5);
+    }
+
+    @Override
+    public void tableChanged(TableModelEvent e) {
+        mainFrame.updateSite();
+    }
+    
+    @Override
+    public void dispose() {
+        super.dispose();
+        ((FullScreenPanel)splitPaneTeam.getLeftComponent()).removeTableListener(this);
+        ((FullScreenPanel)splitPaneTeam.getRightComponent()).removeTableListener(this);
     }
 }

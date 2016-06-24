@@ -12,6 +12,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
@@ -25,6 +27,8 @@ public class MainFrame extends javax.swing.JFrame {
     private FullScreenForm fsf;
     private MyFileChooser fc;
     private PenaltyCodesDialog pcd;
+    private NeoCitiesConnection con;
+    private String gameName;
     
     /**
      * Creates new form MainFrame
@@ -37,12 +41,17 @@ public class MainFrame extends javax.swing.JFrame {
         if(directory != null) {
             fc.setCurrentDirectory(new File(directory));
         }
+        WebsiteOptionsDialog.load();
+        doProxySettings();
         game = new Game();
         splitPaneTeam.setLeftComponent(new TeamPanel(game.leftTeam));
         splitPaneTeam.setRightComponent(new TeamPanel(game.rightTeam));
         
         pcd = new PenaltyCodesDialog(this, false);
         miFullScreen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0));
+        
+        con = new NeoCitiesConnection("derbypenaltyboard", "farscape");
+        gameName = "";
     }
 
     /**
@@ -76,6 +85,10 @@ public class MainFrame extends javax.swing.JFrame {
         miFullScreenOptions = new javax.swing.JMenuItem();
         jSeparator3 = new javax.swing.JPopupMenu.Separator();
         miPenaltyCodes = new javax.swing.JCheckBoxMenuItem();
+        jMenu1 = new javax.swing.JMenu();
+        miWebsite = new javax.swing.JCheckBoxMenuItem();
+        jSeparator4 = new javax.swing.JPopupMenu.Separator();
+        miWebsiteOptions = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Derby Penalty Board");
@@ -212,6 +225,27 @@ public class MainFrame extends javax.swing.JFrame {
 
         mbMain.add(mView);
 
+        jMenu1.setText("Website");
+
+        miWebsite.setText("Website");
+        miWebsite.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miWebsiteActionPerformed(evt);
+            }
+        });
+        jMenu1.add(miWebsite);
+        jMenu1.add(jSeparator4);
+
+        miWebsiteOptions.setText("Website Options");
+        miWebsiteOptions.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miWebsiteOptionsActionPerformed(evt);
+            }
+        });
+        jMenu1.add(miWebsiteOptions);
+
+        mbMain.add(jMenu1);
+
         setJMenuBar(mbMain);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -309,6 +343,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         FullScreenOptionsDialog.save(fc.getCurrentDirectory().getAbsolutePath());
+        WebsiteOptionsDialog.save();
     }//GEN-LAST:event_formWindowClosing
 
     private void miLeftOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miLeftOpenActionPerformed
@@ -422,6 +457,31 @@ public class MainFrame extends javax.swing.JFrame {
         pcd.setVisible(miPenaltyCodes.isSelected());
     }//GEN-LAST:event_miPenaltyCodesActionPerformed
 
+    private void miWebsiteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miWebsiteActionPerformed
+        if(miWebsite.isSelected()) {
+            if(gameName.isEmpty()) {
+                String name = JOptionPane.showInputDialog(this, "Enter a name for your game", "Game Name", JOptionPane.QUESTION_MESSAGE);
+                if(name != null) {
+                    gameName = name;
+                } else {
+                    miWebsite.setSelected(false);
+                }
+            } else {
+                updateSite();
+            }
+        }
+    }//GEN-LAST:event_miWebsiteActionPerformed
+
+    private void miWebsiteOptionsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miWebsiteOptionsActionPerformed
+        String name = WebsiteOptionsDialog.showDialog(this, gameName);
+        if(name != null) {
+            gameName = name;
+            if(miWebsite.isSelected()) {
+                updateSite();
+            }
+        }
+    }//GEN-LAST:event_miWebsiteOptionsActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -459,9 +519,11 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenu jMenu1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator3;
+    private javax.swing.JPopupMenu.Separator jSeparator4;
     private javax.swing.JMenu mEdit;
     private javax.swing.JMenu mFile;
     private javax.swing.JMenu mLeft;
@@ -480,6 +542,8 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem miRightSave;
     private javax.swing.JMenuItem miTeamSwap;
     private javax.swing.JMenuItem miUpdateFullScreen;
+    private javax.swing.JCheckBoxMenuItem miWebsite;
+    private javax.swing.JMenuItem miWebsiteOptions;
     private javax.swing.JSplitPane splitPaneTeam;
     // End of variables declaration//GEN-END:variables
 
@@ -487,6 +551,54 @@ public class MainFrame extends javax.swing.JFrame {
         fsf.dispose();
         miFullScreen.setSelected(false);
         miUpdateFullScreen.setEnabled(false);
+    }
+
+    void updateSite() {
+        if(miWebsite.isSelected() && miFullScreen.isSelected()) {
+            try {
+                System.out.println("posting...");
+                int code = con.post(gameName +".js", game.siteString());
+                System.out.println("done " +code);
+            } catch (IOException ex) {
+                ex.printStackTrace(System.out);
+            }
+        } else if(miWebsite.isSelected()) {
+            System.out.println("posting no fullscreen");
+        }
+    }
+
+    private void doProxySettings() {
+        if(WebsiteOptionsDialog.isUsingProxy()) {
+            System.setProperty("https.proxyHost", WebsiteOptionsDialog.getProxyServer());
+            System.setProperty("https.proxyPort", "80");
+            if(WebsiteOptionsDialog.isProxyUsingAuthentication()) {
+                System.setProperty("https.proxyUser", WebsiteOptionsDialog.getProxyUser());
+                System.setProperty("https.proxyPassword", WebsiteOptionsDialog.getProxyPassword());
+                Authenticator.setDefault(new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        if (getRequestorType() == Authenticator.RequestorType.PROXY) {
+                            String prot = getRequestingProtocol().toLowerCase();
+                            String host = System.getProperty(prot + ".proxyHost", "");
+                            String port = System.getProperty(prot + ".proxyPort", "80");
+                            String user = System.getProperty(prot + ".proxyUser", "");
+                            String password = System.getProperty(prot + ".proxyPassword", "");
+
+                            if (getRequestingHost().equalsIgnoreCase(host)) {
+                                if (Integer.parseInt(port) == getRequestingPort()) {
+                                    // Seems to be OK.
+                                    return new PasswordAuthentication(user, password.toCharArray());  
+                                }
+                            }
+                        }
+                        return null;
+                    }  
+                });
+            }
+        } else {
+            System.setProperty("https.proxyHost", "");
+            System.setProperty("https.proxyPort", "");
+        }
     }
     
 }
