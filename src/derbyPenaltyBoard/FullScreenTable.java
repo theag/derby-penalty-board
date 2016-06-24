@@ -11,6 +11,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import javax.swing.JTable;
+import javax.swing.event.TableModelListener;
 
 /**
  *
@@ -54,6 +55,14 @@ public class FullScreenTable extends JTable {
                         r2.x + r2.width - FullScreenOptionsDialog.getRowPadding(FullScreenOptionsDialog.RIGHT), r2.y + r2.height/2);
             }
         }
+    }
+
+    void addTableModelListener(TableModelListener listener) {
+        getModel().addTableModelListener(listener);
+    }
+
+    void removeTableListener(TableModelListener listener) {
+        getModel().removeTableModelListener(listener);
     }
     
 }

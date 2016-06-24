@@ -61,6 +61,10 @@ public class Team {
         }
     }
     
+    public static String getHTMLColour(Color colour) {
+        return "#" +Integer.toHexString(colour.getRGB()).substring(2);
+    }
+    
     public String identifier;
     public Color colour;
     public final Player[] players;
@@ -140,6 +144,23 @@ public class Team {
 
     public Color getContrast() {
         return Team.getContrast(colour);
+    }
+
+    String siteString() {
+        String rv = "{identifier: \"" +this.identifier +"\", color: \"" +getHTMLColour(colour) +"\", text: \"" +getHTMLColour(getContrast()) +"\", players: [";
+        boolean first = true;
+        for(int i = 0; i < players.length; i++) {
+            if(!players[i].number.trim().isEmpty()) {
+                if(first) {
+                   first = false; 
+                } else {
+                    rv += ", ";
+                }
+                rv += players[i].siteString();
+            }
+        }
+        rv += "]}";
+        return rv;
     }
     
 }

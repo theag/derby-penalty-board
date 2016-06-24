@@ -39,6 +39,7 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
         FullScreenOptionsDialog dialog = new FullScreenOptionsDialog(parent, true);
         dialog.setLocationRelativeTo(parent);
         dialog.setVisible(true);
+        dialog.dispose();
     }
     
     public static void showDialog(java.awt.Frame parent, FullScreenForm fsf) {
@@ -46,6 +47,7 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
         dialog.setFullScreenForm(fsf);
         dialog.setLocationRelativeTo(parent);
         dialog.setVisible(true);
+        dialog.dispose();
     }
     
     public static GraphicsDevice getScreenDevice() {

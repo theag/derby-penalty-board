@@ -7,6 +7,7 @@ package derbyPenaltyBoard;
 
 import java.awt.BorderLayout;
 import javax.swing.BorderFactory;
+import javax.swing.event.TableModelListener;
 
 /**
  *
@@ -153,6 +154,14 @@ public class FullScreenPanel extends javax.swing.JPanel {
                 + FullScreenOptionsDialog.getRowPadding(FullScreenOptionsDialog.TOP)
                 + FullScreenOptionsDialog.getRowPadding(FullScreenOptionsDialog.BOTTOM));
         tblTeam.getMyModel().fireTableStructureChanged();
+    }
+    
+    void addTableModelListener(TableModelListener listener) {
+        tblTeam.addTableModelListener(listener);
+    }
+
+    void removeTableListener(TableModelListener listener) {
+        tblTeam.removeTableListener(listener);
     }
     
 }
