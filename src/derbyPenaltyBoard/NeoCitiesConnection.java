@@ -43,24 +43,22 @@ public class NeoCitiesConnection {
         
         // Send post request
         con.setDoOutput(true);
-       try (
-            OutputStream output = con.getOutputStream();
-            PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, charset), true);
-        ) {
-            // Send text file.
-            writer.append("--" + boundary).append(CRLF);
-            writer.append("Content-Disposition: form-data; name=\"" +filename +"\"; filename=\"" +filename +"\"").append(CRLF);
-            writer.append("Content-Type: text/plain; charset=" + charset).append(CRLF); // Text file itself must be saved in this charset!
-            writer.append(CRLF).flush();
-            for(String line : data) {
-                writer.append(line);
-                writer.append(CRLF);
-            }
-            output.flush(); // Important before continuing with writer!
-            writer.append(CRLF).flush(); // CRLF is important! It indicates end of boundary.
-
-            writer.append("--" + boundary + "--").append(CRLF).flush();
+        OutputStream output = con.getOutputStream();
+        PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, charset), true);
+        // Send text file.
+        writer.append("--" + boundary).append(CRLF);
+        writer.append("Content-Disposition: form-data; name=\"" +filename +"\"; filename=\"" +filename +"\"").append(CRLF);
+        writer.append("Content-Type: text/plain; charset=" + charset).append(CRLF); // Text file itself must be saved in this charset!
+        writer.append(CRLF).flush();
+        for(String line : data) {
+            writer.append(line);
+            writer.append(CRLF);
         }
+        output.flush(); // Important before continuing with writer!
+        writer.append(CRLF).flush(); // CRLF is important! It indicates end of boundary.
+
+        writer.append("--" + boundary + "--").append(CRLF).flush();
+        writer.close();
 
         return con.getResponseCode();
     }
@@ -80,22 +78,20 @@ public class NeoCitiesConnection {
         
         // Send post request
         con.setDoOutput(true);
-       try (
-            OutputStream output = con.getOutputStream();
-            PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, charset), true);
-        ) {
-            // Send text file.
-            writer.append("--" + boundary).append(CRLF);
-            writer.append("Content-Disposition: form-data; name=\"" +filename +"\"; filename=\"" +filename +"\"").append(CRLF);
-            writer.append("Content-Type: text/plain; charset=" + charset).append(CRLF); // Text file itself must be saved in this charset!
-            writer.append(CRLF).flush();
-            writer.append(data);
-            writer.append(CRLF);
-            output.flush(); // Important before continuing with writer!
-            writer.append(CRLF).flush(); // CRLF is important! It indicates end of boundary.
+        OutputStream output = con.getOutputStream();
+        PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, charset), true);
+        // Send text file.
+        writer.append("--" + boundary).append(CRLF);
+        writer.append("Content-Disposition: form-data; name=\"" +filename +"\"; filename=\"" +filename +"\"").append(CRLF);
+        writer.append("Content-Type: text/plain; charset=" + charset).append(CRLF); // Text file itself must be saved in this charset!
+        writer.append(CRLF).flush();
+        writer.append(data);
+        writer.append(CRLF);
+        output.flush(); // Important before continuing with writer!
+        writer.append(CRLF).flush(); // CRLF is important! It indicates end of boundary.
 
-            writer.append("--" + boundary + "--").append(CRLF).flush();
-        }
+        writer.append("--" + boundary + "--").append(CRLF).flush();
+        writer.close();
 
         return con.getResponseCode();
     }

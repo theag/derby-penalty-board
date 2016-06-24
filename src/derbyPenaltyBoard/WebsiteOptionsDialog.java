@@ -87,7 +87,9 @@ public class WebsiteOptionsDialog extends javax.swing.JDialog {
             proxyUser = inFile.readLine();
             proxyPassword = inFile.readLine().toCharArray();//decode this
             inFile.close();
-        } catch (IOException | NumberFormatException ex) {
+        } catch (IOException ex) {
+            ex.printStackTrace(System.out);
+        } catch (NumberFormatException ex) {
             ex.printStackTrace(System.out);
         }
     }
