@@ -32,6 +32,9 @@ public class FullScreenTable extends JTable {
                 + FullScreenOptionsDialog.getRowPadding(FullScreenOptionsDialog.TOP)
                 + FullScreenOptionsDialog.getRowPadding(FullScreenOptionsDialog.BOTTOM));
         setRowSelectionAllowed(false);
+        if(FullScreenOptionsDialog.isPlayerColumnWidthSet()) {
+            this.getColumnModel().getColumn(0).setPreferredWidth(FullScreenOptionsDialog.getPlayerColumnWidth());
+        }
     }
     
     public FullScreenTeamTableModel getMyModel() {
