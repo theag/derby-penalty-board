@@ -43,6 +43,9 @@ public class MainFrame extends javax.swing.JFrame {
         
         pcd = new PenaltyCodesDialog(this, false);
         miFullScreen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0));
+        
+        setExtendedState(getExtendedState()|MAXIMIZED_BOTH );
+        
     }
 
     /**
@@ -59,14 +62,12 @@ public class MainFrame extends javax.swing.JFrame {
         mFile = new javax.swing.JMenu();
         miNewGame = new javax.swing.JMenuItem();
         jSeparator2 = new javax.swing.JPopupMenu.Separator();
-        mLeft = new javax.swing.JMenu();
-        miLeftNew = new javax.swing.JMenuItem();
-        miLeftOpen = new javax.swing.JMenuItem();
-        miLeftSave = new javax.swing.JMenuItem();
-        mRight = new javax.swing.JMenu();
-        miRightNew = new javax.swing.JMenuItem();
-        miRightOpen = new javax.swing.JMenuItem();
-        miRightSave = new javax.swing.JMenuItem();
+        jMenu1 = new javax.swing.JMenu();
+        miLoadLeft = new javax.swing.JMenuItem();
+        miClearLeftTeam = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
+        miLoadRight = new javax.swing.JMenuItem();
+        miClearRightTeam = new javax.swing.JMenuItem();
         mEdit = new javax.swing.JMenu();
         miTeamSwap = new javax.swing.JMenuItem();
         mView = new javax.swing.JMenu();
@@ -103,61 +104,45 @@ public class MainFrame extends javax.swing.JFrame {
         mFile.add(miNewGame);
         mFile.add(jSeparator2);
 
-        mLeft.setText("Left Team");
+        jMenu1.setText("Left Team");
 
-        miLeftNew.setText("New");
-        miLeftNew.addActionListener(new java.awt.event.ActionListener() {
+        miLoadLeft.setText("Load");
+        miLoadLeft.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                miLeftNewActionPerformed(evt);
+                miLoadLeftActionPerformed(evt);
             }
         });
-        mLeft.add(miLeftNew);
+        jMenu1.add(miLoadLeft);
 
-        miLeftOpen.setText("Open");
-        miLeftOpen.addActionListener(new java.awt.event.ActionListener() {
+        miClearLeftTeam.setText("Clear");
+        miClearLeftTeam.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                miLeftOpenActionPerformed(evt);
+                miClearLeftTeamActionPerformed(evt);
             }
         });
-        mLeft.add(miLeftOpen);
+        jMenu1.add(miClearLeftTeam);
 
-        miLeftSave.setText("Save");
-        miLeftSave.addActionListener(new java.awt.event.ActionListener() {
+        mFile.add(jMenu1);
+
+        jMenu2.setText("Right Team");
+
+        miLoadRight.setText("Load");
+        miLoadRight.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                miLeftSaveActionPerformed(evt);
+                miLoadRightActionPerformed(evt);
             }
         });
-        mLeft.add(miLeftSave);
+        jMenu2.add(miLoadRight);
 
-        mFile.add(mLeft);
-
-        mRight.setText("Right Team");
-
-        miRightNew.setText("New");
-        miRightNew.addActionListener(new java.awt.event.ActionListener() {
+        miClearRightTeam.setText("Clear");
+        miClearRightTeam.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                miRightNewActionPerformed(evt);
+                miClearRightTeamActionPerformed(evt);
             }
         });
-        mRight.add(miRightNew);
+        jMenu2.add(miClearRightTeam);
 
-        miRightOpen.setText("Open");
-        miRightOpen.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                miRightOpenActionPerformed(evt);
-            }
-        });
-        mRight.add(miRightOpen);
-
-        miRightSave.setText("Save");
-        miRightSave.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                miRightSaveActionPerformed(evt);
-            }
-        });
-        mRight.add(miRightSave);
-
-        mFile.add(mRight);
+        mFile.add(jMenu2);
 
         mbMain.add(mFile);
 
@@ -251,42 +236,37 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void miFullScreenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miFullScreenActionPerformed
         if(miFullScreen.isSelected()) {
+            
             TeamPanel leftPanel = (TeamPanel)splitPaneTeam.getLeftComponent();
             leftPanel.stopEditing();
             TeamPanel rightPanel = (TeamPanel)splitPaneTeam.getRightComponent();
             rightPanel.stopEditing();
-            if(FullScreenOptionsDialog.isOnSingleDevice()) {
-                GraphicsDevice screenDevice = getGraphicsConfiguration().getDevice();
-                if(screenDevice.isFullScreenSupported()) {
-                    miUpdateFullScreen.setEnabled(true);
-                    fsf = new FullScreenForm(game, this);
-                    fsf.setVisible(true);
-                    screenDevice.setFullScreenWindow(fsf);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Full screen not availible.", "Warning", JOptionPane.WARNING_MESSAGE);
-                    miFullScreen.setSelected(false);
-                }
-            } else {
-                miUpdateFullScreen.setEnabled(true);
-                GraphicsDevice screenDevice = FullScreenOptionsDialog.getScreenDevice();
-                Rectangle bounds = screenDevice.getDefaultConfiguration().getBounds();
-                fsf = new FullScreenForm(game, this);
-                leftPanel.addTeamUpdateListener(new TeamUpdateEvent.TeamUpdateListener() {
-                    @Override
-                    public void onTeamUpdate(TeamUpdateEvent evt) {
-                        fsf.leftTeamUpdate(evt);
-                    }
-                });
-                rightPanel.addTeamUpdateListener(new TeamUpdateEvent.TeamUpdateListener() {
-                    @Override
-                    public void onTeamUpdate(TeamUpdateEvent evt) {
-                        fsf.rightTeamUpdate(evt);
-                    }
-                });
-                fsf.setVisible(true);
-                fsf.setLocation(bounds.getLocation());
-                fsf.setExtendedState(fsf.getExtendedState() | MAXIMIZED_BOTH);
+            
+            miUpdateFullScreen.setEnabled(true);
+            GraphicsDevice screenDevice = FullScreenOptionsDialog.getScreenDevice();
+            if(screenDevice.equals(this.getGraphicsConfiguration().getDevice())) {
+                JOptionPane.showMessageDialog(this, "Cannot full screen to same device.\nChange the full screen device in \"View\": \"Full Screen Options\".", "Error", JOptionPane.ERROR_MESSAGE);
+                miFullScreen.setSelected(false);
+                return;
             }
+            Rectangle bounds = screenDevice.getDefaultConfiguration().getBounds();
+            fsf = new FullScreenForm(game, this);
+            leftPanel.addTeamUpdateListener(new TeamUpdateEvent.TeamUpdateListener() {
+                @Override
+                public void onTeamUpdate(TeamUpdateEvent evt) {
+                    fsf.leftTeamUpdate(evt);
+                }
+            });
+            rightPanel.addTeamUpdateListener(new TeamUpdateEvent.TeamUpdateListener() {
+                @Override
+                public void onTeamUpdate(TeamUpdateEvent evt) {
+                    fsf.rightTeamUpdate(evt);
+                }
+            });
+            fsf.setVisible(true);
+            fsf.setLocation(bounds.getLocation());
+            fsf.setExtendedState(fsf.getExtendedState() | MAXIMIZED_BOTH);
+
         } else {
             fsf.dispose();
             miUpdateFullScreen.setEnabled(false);
@@ -295,9 +275,9 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void miFullScreenOptionsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miFullScreenOptionsActionPerformed
         if(fsf != null && fsf.isDisplayable()) {
-            FullScreenOptionsDialog.showDialog(this, fsf);
+            FullScreenOptionsDialog.showDialog(this, this.getGraphicsConfiguration().getDevice(), fsf);
         } else {
-            FullScreenOptionsDialog.showDialog(this);
+            FullScreenOptionsDialog.showDialog(this, this.getGraphicsConfiguration().getDevice());
         }
     }//GEN-LAST:event_miFullScreenOptionsActionPerformed
 
@@ -311,12 +291,16 @@ public class MainFrame extends javax.swing.JFrame {
         FullScreenOptionsDialog.save(fc.getCurrentDirectory().getAbsolutePath());
     }//GEN-LAST:event_formWindowClosing
 
-    private void miLeftOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miLeftOpenActionPerformed
+    private void miPenaltyCodesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miPenaltyCodesActionPerformed
+        pcd.setVisible(miPenaltyCodes.isSelected());
+    }//GEN-LAST:event_miPenaltyCodesActionPerformed
+
+    private void miLoadLeftActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miLoadLeftActionPerformed
         fc.setSelectedFile(null);
         int result = fc.showOpenDialog(this);
         if(result == MyFileChooser.APPROVE_OPTION) {
             try {
-                game.leftTeam = Team.load(fc.getSelectedFile());
+                game.leftTeam = Team.load(fc.getSelectedFile(), false);
                 splitPaneTeam.setLeftComponent(new TeamPanel(game.leftTeam));
                 splitPaneTeam.setDividerLocation(0.5);
                 if(fsf != null && fsf.isDisplayable()) {
@@ -340,42 +324,13 @@ public class MainFrame extends javax.swing.JFrame {
                 }
             }
         }
-    }//GEN-LAST:event_miLeftOpenActionPerformed
+    }//GEN-LAST:event_miLoadLeftActionPerformed
 
-    private void miLeftNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miLeftNewActionPerformed
-        game.leftTeam = new Team(false);
-        splitPaneTeam.setLeftComponent(new TeamPanel(game.leftTeam));
-        splitPaneTeam.setDividerLocation(0.5);
-    }//GEN-LAST:event_miLeftNewActionPerformed
-
-    private void miLeftSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miLeftSaveActionPerformed
-        int result = fc.showSaveDialog(this);
-        if(result == MyFileChooser.APPROVE_OPTION) {
-            try {
-                Team.save(game.leftTeam, fc.getSelectedFile());
-            } catch (IOException ex) {
-                String[] options = new String[]{"Show Details", "OK"};
-                result = JOptionPane.showOptionDialog(this, fc.getSelectedFile().getName() +"\nError Saving.", "Save", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
-                if(result == JOptionPane.YES_OPTION) {
-                    StringWriter sw = new StringWriter();
-                    ex.printStackTrace(new PrintWriter(sw));
-                    JOptionPane.showMessageDialog(this, sw.toString(), "Save - Details", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        }
-    }//GEN-LAST:event_miLeftSaveActionPerformed
-
-    private void miRightNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miRightNewActionPerformed
-        game.rightTeam = new Team(false);
-        splitPaneTeam.setRightComponent(new TeamPanel(game.rightTeam));
-        splitPaneTeam.setDividerLocation(0.5);
-    }//GEN-LAST:event_miRightNewActionPerformed
-
-    private void miRightOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miRightOpenActionPerformed
+    private void miLoadRightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miLoadRightActionPerformed
         int result = fc.showOpenDialog(this);
         if(result == MyFileChooser.APPROVE_OPTION) {
             try {
-                game.rightTeam = Team.load(fc.getSelectedFile());
+                game.rightTeam = Team.load(fc.getSelectedFile(), true);
                 splitPaneTeam.setRightComponent(new TeamPanel(game.rightTeam));
                 splitPaneTeam.setDividerLocation(0.5);
                 if(fsf != null && fsf.isDisplayable()) {
@@ -399,28 +354,25 @@ public class MainFrame extends javax.swing.JFrame {
                 }
             }
         }
-    }//GEN-LAST:event_miRightOpenActionPerformed
+    }//GEN-LAST:event_miLoadRightActionPerformed
 
-    private void miRightSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miRightSaveActionPerformed
-        int result = fc.showSaveDialog(this);
-        if(result == MyFileChooser.APPROVE_OPTION) {
-            try {
-                Team.save(game.rightTeam, fc.getSelectedFile());
-            } catch (IOException ex) {
-                String[] options = new String[]{"Show Details", "OK"};
-                result = JOptionPane.showOptionDialog(this, fc.getSelectedFile().getName() +"\nError Saving.", "Save", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
-                if(result == JOptionPane.YES_OPTION) {
-                    StringWriter sw = new StringWriter();
-                    ex.printStackTrace(new PrintWriter(sw));
-                    JOptionPane.showMessageDialog(this, sw.toString(), "Save - Details", JOptionPane.ERROR_MESSAGE);
-                }
-            }
+    private void miClearLeftTeamActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miClearLeftTeamActionPerformed
+        game.leftTeam = new Team(false);
+        splitPaneTeam.setLeftComponent(new TeamPanel(game.leftTeam));
+        splitPaneTeam.setDividerLocation(0.5);
+        if(fsf != null && fsf.isDisplayable()) {
+            fsf.resetLeft(game.leftTeam);
         }
-    }//GEN-LAST:event_miRightSaveActionPerformed
+    }//GEN-LAST:event_miClearLeftTeamActionPerformed
 
-    private void miPenaltyCodesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miPenaltyCodesActionPerformed
-        pcd.setVisible(miPenaltyCodes.isSelected());
-    }//GEN-LAST:event_miPenaltyCodesActionPerformed
+    private void miClearRightTeamActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miClearRightTeamActionPerformed
+        game.rightTeam = new Team(true);
+        splitPaneTeam.setRightComponent(new TeamPanel(game.rightTeam));
+        splitPaneTeam.setDividerLocation(0.5);
+        if(fsf != null && fsf.isDisplayable()) {
+            fsf.resetRight(game.rightTeam);
+        }
+    }//GEN-LAST:event_miClearRightTeamActionPerformed
 
     /**
      * @param args the command line arguments
@@ -459,25 +411,23 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator3;
     private javax.swing.JMenu mEdit;
     private javax.swing.JMenu mFile;
-    private javax.swing.JMenu mLeft;
-    private javax.swing.JMenu mRight;
     private javax.swing.JMenu mView;
     private javax.swing.JMenuBar mbMain;
+    private javax.swing.JMenuItem miClearLeftTeam;
+    private javax.swing.JMenuItem miClearRightTeam;
     private javax.swing.JCheckBoxMenuItem miFullScreen;
     private javax.swing.JMenuItem miFullScreenOptions;
-    private javax.swing.JMenuItem miLeftNew;
-    private javax.swing.JMenuItem miLeftOpen;
-    private javax.swing.JMenuItem miLeftSave;
+    private javax.swing.JMenuItem miLoadLeft;
+    private javax.swing.JMenuItem miLoadRight;
     private javax.swing.JMenuItem miNewGame;
     private javax.swing.JCheckBoxMenuItem miPenaltyCodes;
-    private javax.swing.JMenuItem miRightNew;
-    private javax.swing.JMenuItem miRightOpen;
-    private javax.swing.JMenuItem miRightSave;
     private javax.swing.JMenuItem miTeamSwap;
     private javax.swing.JMenuItem miUpdateFullScreen;
     private javax.swing.JSplitPane splitPaneTeam;

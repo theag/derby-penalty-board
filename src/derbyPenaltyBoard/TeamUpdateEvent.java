@@ -22,6 +22,7 @@ public class TeamUpdateEvent {
     public static final int TABLE = 1;
     public static final int FORCED = 2;
     public static final int IDENTIFIER = 3;
+    public static final int SPINNER = 4;
     
     private int type;
     private Component source;

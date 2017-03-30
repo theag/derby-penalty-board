@@ -126,6 +126,9 @@ public class FullScreenForm extends javax.swing.JFrame {
             case TeamUpdateEvent.IDENTIFIER:
                 ((FullScreenPanel)splitPaneTeam.getLeftComponent()).updateHeader();
                 break;
+            case TeamUpdateEvent.SPINNER:
+                ((FullScreenPanel)splitPaneTeam.getLeftComponent()).updateSpinners();
+                break;
         }
     }
 
@@ -137,6 +140,9 @@ public class FullScreenForm extends javax.swing.JFrame {
             case TeamUpdateEvent.COLOUR:
             case TeamUpdateEvent.IDENTIFIER:
                 ((FullScreenPanel)splitPaneTeam.getRightComponent()).updateHeader();
+                break;
+            case TeamUpdateEvent.SPINNER:
+                ((FullScreenPanel)splitPaneTeam.getRightComponent()).updateSpinners();
                 break;
         }
     }

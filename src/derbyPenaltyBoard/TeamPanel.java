@@ -25,10 +25,13 @@ public class TeamPanel extends javax.swing.JPanel {
         initComponents();
         tblTeam.setModel(new TeamTableModel(team));
         tblTeam.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+        ((javax.swing.JComponent)tblTeam.getDefaultRenderer(Boolean.class)).setOpaque(true);
         btnColour.setBackground(team.colour);
         txtIdentifier.setText(team.identifier);
         this.team = team;
         rowClicked = -1;
+        spnOfficialReviews.setModel(new OfficialReviewSpinnerModel(team));
+        spnTimeouts.setModel(new TimeoutSpinnerModel(team));
     }
 
     /**
@@ -51,6 +54,10 @@ public class TeamPanel extends javax.swing.JPanel {
         tblTeam = new javax.swing.JTable();
         btnSort = new javax.swing.JButton();
         btnColour = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        spnOfficialReviews = new javax.swing.JSpinner();
+        jLabel2 = new javax.swing.JLabel();
+        spnTimeouts = new javax.swing.JSpinner();
 
         miNumber.setText("jMenuItem1");
         miNumber.setEnabled(false);
@@ -126,6 +133,10 @@ public class TeamPanel extends javax.swing.JPanel {
             }
         });
 
+        jLabel1.setText("Official Reviews:");
+
+        jLabel2.setText("Timeouts:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -143,7 +154,16 @@ public class TeamPanel extends javax.swing.JPanel {
                         .addComponent(btnColour))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnSort)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnSort)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(spnOfficialReviews, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(spnTimeouts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -156,7 +176,13 @@ public class TeamPanel extends javax.swing.JPanel {
                     .addComponent(lblColour)
                     .addComponent(btnColour))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 571, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(spnOfficialReviews, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2)
+                    .addComponent(spnTimeouts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 545, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnSort)
                 .addGap(6, 6, 6))
@@ -201,9 +227,15 @@ public class TeamPanel extends javax.swing.JPanel {
 
     private void tblTeamMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblTeamMouseClicked
         if(SwingUtilities.isLeftMouseButton(evt)) {
-            if(tblTeam.columnAtPoint(evt.getPoint()) == TeamTableModel.IS_EJECTED_COLUMN) {
+            int column = tblTeam.columnAtPoint(evt.getPoint());
+            if(column == TeamTableModel.IS_EJECTED_COLUMN) {
                 int row = tblTeam.rowAtPoint(evt.getPoint());
                 team.players[row].isEjected = !team.players[row].isEjected;
+                ((TeamTableModel)tblTeam.getModel()).fireTableDataChanged();
+                fireTeamTableUpdated();
+            } else if(TeamTableModel.isSatColumn(column)) {
+                int row = tblTeam.rowAtPoint(evt.getPoint());
+                team.players[row].penalties[TeamTableModel.getPenaltyIndex(column)].sat = !team.players[row].penalties[TeamTableModel.getPenaltyIndex(column)].sat;
                 ((TeamTableModel)tblTeam.getModel()).fireTableDataChanged();
                 fireTeamTableUpdated();
             }
@@ -233,6 +265,8 @@ public class TeamPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnColour;
     private javax.swing.JButton btnSort;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblColour;
     private javax.swing.JLabel lblIdentifier;
@@ -240,6 +274,8 @@ public class TeamPanel extends javax.swing.JPanel {
     private javax.swing.JMenuItem miMoveUp;
     private javax.swing.JMenuItem miNumber;
     private javax.swing.JPopupMenu popupPlayer;
+    private javax.swing.JSpinner spnOfficialReviews;
+    private javax.swing.JSpinner spnTimeouts;
     private javax.swing.JTable tblTeam;
     private javax.swing.JTextField txtIdentifier;
     // End of variables declaration//GEN-END:variables
@@ -253,6 +289,8 @@ public class TeamPanel extends javax.swing.JPanel {
     public void addTeamUpdateListener(TeamUpdateEvent.TeamUpdateListener listener) {
         listenerList.add(TeamUpdateEvent.TeamUpdateListener.class, listener);
         ((TeamTableModel)tblTeam.getModel()).addTeamUpdateListener(listener);
+        ((OfficialReviewSpinnerModel)spnOfficialReviews.getModel()).addTeamUpdateListener(listener);
+        ((TimeoutSpinnerModel)spnTimeouts.getModel()).addTeamUpdateListener(listener);
     }
 
     private void fireTeamTableUpdated() {

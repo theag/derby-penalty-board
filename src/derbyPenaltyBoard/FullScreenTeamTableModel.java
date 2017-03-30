@@ -41,27 +41,12 @@ public class FullScreenTeamTableModel extends AbstractTableModel {
     }
     
     @Override
-    public boolean isCellEditable(int rowIndex, int columnIndex) {
-        if(columnIndex == 0) {
-            return false;
-        } else {
-            return !team.getActivePlayer(rowIndex).isEjected;
-        }
-    }
-
-    @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         if(columnIndex == 0) {
             return team.getActivePlayer(rowIndex).number;
         } else {
-            return team.getActivePlayer(rowIndex).penalties[columnIndex-1];
+            return team.getActivePlayer(rowIndex).penalties[columnIndex-1].display();
         }
-    }
-    
-    @Override
-    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        String penalty = (String)aValue;
-            team.getActivePlayer(rowIndex).penalties[columnIndex-1] = penalty.toUpperCase();
     }
     
 }

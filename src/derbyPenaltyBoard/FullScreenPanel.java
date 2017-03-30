@@ -19,7 +19,8 @@ public class FullScreenPanel extends javax.swing.JPanel {
     private int rowClicked;
     
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JLabel lblHeader;
+    //private javax.swing.JLabel lblHeader;
+    private FullScreenHeaderPanel header;
     
     /**
      * Creates new form FullScreenPanel
@@ -31,21 +32,8 @@ public class FullScreenPanel extends javax.swing.JPanel {
         
         setLayout(new BorderLayout());
         
-        lblHeader = new javax.swing.JLabel(team.identifier);
-        lblHeader.setFont(lblHeader.getFont().deriveFont(FullScreenOptionsDialog.getHeaderFontSize()));
-        lblHeader.setOpaque(true);
-        lblHeader.setBackground(team.colour);
-        lblHeader.setBorder(BorderFactory.createEmptyBorder(
-                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.TOP),
-                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.LEFT),
-                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.BOTTOM),
-                        FullScreenOptionsDialog.getHeaderPadding(FullScreenOptionsDialog.RIGHT)));
-        if(FullScreenOptionsDialog.isShowingTeamIdentifier()) {
-            lblHeader.setForeground(team.getContrast());
-        } else {
-            lblHeader.setForeground(team.colour);
-        }
-        add(lblHeader, BorderLayout.PAGE_START);
+        header = new FullScreenHeaderPanel(team);
+        add(header, BorderLayout.PAGE_START);
         
         tblTeam = new FullScreenTable(team);
         tblTeam.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -135,18 +123,16 @@ public class FullScreenPanel extends javax.swing.JPanel {
     }
 
     public void updateHeader() {
-        lblHeader.setText(team.identifier);
-        lblHeader.setFont(lblHeader.getFont().deriveFont(FullScreenOptionsDialog.getHeaderFontSize()));
-        lblHeader.setBackground(team.colour);
-        if(FullScreenOptionsDialog.isShowingTeamIdentifier()) {
-            lblHeader.setForeground(team.getContrast());
-        } else {
-            lblHeader.setForeground(team.colour);
-        }
+        header.update();
+    }
+    
+    public void updateSpinners() {
+        header.updateSpinners();
     }
 
     public void updateAll() {
         updateHeader();
+        updateSpinners();
         TeamCellRenderer renderer = (TeamCellRenderer)tblTeam.getCellRenderer(0, 0);
         renderer.resetFont();
         tblTeam.setRowHeight(renderer.getFontMetrics().getHeight()

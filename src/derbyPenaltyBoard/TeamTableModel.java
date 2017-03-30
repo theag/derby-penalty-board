@@ -15,7 +15,19 @@ import javax.swing.table.AbstractTableModel;
  */
 public class TeamTableModel extends AbstractTableModel {
     
-    public final static int IS_EJECTED_COLUMN = Player.MAX_PENALITIES + 1;
+    public final static int IS_EJECTED_COLUMN = Player.MAX_PENALITIES*2 + 1;
+    
+    public static boolean isSatColumn(int column) {
+        return column > 0 && column != IS_EJECTED_COLUMN && column%2 == 0;
+    }
+    
+    public static int getPenaltyIndex(int column) {
+        if(column%2 == 1) {
+            return (column+1)/2;
+        } else {
+            return column/2 - 1;
+        }
+    }
     
     private final Team team;
     
@@ -30,17 +42,20 @@ public class TeamTableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return Player.MAX_PENALITIES + 2;
+        return Player.MAX_PENALITIES*2 + 2;
     }
     
     @Override
     public String getColumnName(int column) {
         if(column == 0) {
             return "Player";
-        } else if(column == Player.MAX_PENALITIES + 1) {
+        } else if(column == IS_EJECTED_COLUMN) {
             return "Ejected";
+        } else if(column%2 == 1) {
+            return "P" +((column+1)/2);
         } else {
-            return "P" +column;
+            //return "Sat" +(column/2);
+            return "sat";
         }
     }
     
@@ -52,17 +67,19 @@ public class TeamTableModel extends AbstractTableModel {
     
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return  columnIndex != Player.MAX_PENALITIES + 1;
+        return columnIndex == 0 || (columnIndex != IS_EJECTED_COLUMN && columnIndex%2 == 1);
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         if(columnIndex == 0) {
             return team.players[rowIndex].number;
-        } else if(columnIndex == Player.MAX_PENALITIES + 1) {
+        } else if(columnIndex == IS_EJECTED_COLUMN) {
             return team.players[rowIndex].isEjected;
+        } else if(columnIndex%2 == 1) {
+            return team.players[rowIndex].penalties[(columnIndex-1)/2].code;
         } else {
-            return team.players[rowIndex].penalties[columnIndex-1];
+            return team.players[rowIndex].penalties[columnIndex/2-1].sat;
         }
     }
     
@@ -70,9 +87,9 @@ public class TeamTableModel extends AbstractTableModel {
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         if(columnIndex == 0) {
             team.players[rowIndex].number = (String)aValue;
-        } else {
+        } else if(columnIndex%2 == 1) {
             String penalty = (String)aValue;
-            team.players[rowIndex].penalties[columnIndex-1] = penalty.toUpperCase();
+            team.players[rowIndex].penalties[(columnIndex-1)/2].code = penalty.toUpperCase();
         }
         TeamUpdateEvent evt = new TeamUpdateEvent(TeamUpdateEvent.TABLE, null, team);
         TeamUpdateEvent.TeamUpdateListener[] listeners = listenerList.getListeners(TeamUpdateEvent.TeamUpdateListener.class);

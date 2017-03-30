@@ -14,14 +14,14 @@ public class Player implements Comparable<Player> {
     public static final int MAX_PENALITIES = 7;
 
     public String number;
-    public final String[] penalties;
+    public final Penalty[] penalties;
     public boolean isEjected;
 
     public Player() {
         number = "";
-        penalties = new String[MAX_PENALITIES];
+        penalties = new Penalty[MAX_PENALITIES];
         for(int i = 0; i < MAX_PENALITIES; i++) {
-            penalties[i] = "";
+            penalties[i] = new Penalty();
         }
         isEjected = false;
     }
@@ -33,6 +33,21 @@ public class Player implements Comparable<Player> {
         } else {
             return number.compareTo(o.number);
         }
+    }
+    
+    class Penalty {
+        public String code;
+        public boolean sat;
+        
+        public Penalty() {
+            code = "";
+            sat = false;
+        }
+        
+        public String display() {
+            return code;
+        }
+        
     }
 
 }

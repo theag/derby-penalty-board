@@ -10,7 +10,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 /**
  *
@@ -18,36 +17,27 @@ import java.io.PrintWriter;
  */
 public class Team {
     public static final int MAX_ROSTER = 14;
+    public static final int MAX_REVIEWS = 1;
+    public static final int MAX_TIMEOUTS = 3;
 
-    public static Team load(File file) throws IOException, NumberFormatException {
+    public static Team load(File file, boolean isBlack) throws IOException, NumberFormatException {
         BufferedReader inFile = new BufferedReader(new FileReader(file));
-        Team rv = new Team(inFile.readLine());
-        String colour = inFile.readLine();
-        if(!colour.isEmpty()) {
-            rv.colour = Color.decode(colour);
-        }
-        String line = inFile.readLine();
+        Team rv = new Team(isBlack);
+        String line = inFile.readLine().trim();
         int index = 0;
         while(line != null && index < MAX_ROSTER) {
-            rv.players[index++].number = line;
+            if(!line.isEmpty()) {
+                int space = line.indexOf(" ");
+                if(space >= 0) {
+                    rv.players[index++].number = line.substring(0, space);
+                } else {
+                    rv.players[index++].number = line;
+                }
+            }
             line = inFile.readLine();
         }
         inFile.close();
         return rv;
-    }
-
-    public static void save(Team team, File file) throws IOException {
-        PrintWriter outFile = new PrintWriter(file);
-        outFile.println(team.identifier);
-        String colour = Integer.toHexString(team.colour.getRGB()).substring(2).toUpperCase();
-        while(colour.length() < 6) {
-            colour = "0" +colour;
-        }
-        outFile.println("#" +colour);
-        for(Player p : team.players) {
-            outFile.println(p.number);
-        }
-        outFile.close();
     }
 
     public static Color getContrast(Color colour) {
@@ -61,9 +51,27 @@ public class Team {
         }
     }
     
+    public static String getMaxReviewsString() {
+        String rv = "";
+        for(int i = 0; i < MAX_REVIEWS; i++) {
+            rv += FullScreenOptionsDialog.getOfficialReviewString();
+        }
+        return rv;
+    }
+    
+    public static String getMaxTimeoutString() {
+        String rv = "";
+        for(int i = 0; i < MAX_TIMEOUTS; i++) {
+            rv += FullScreenOptionsDialog.getTimeoutString();
+        }
+        return rv;
+    }
+    
     public String identifier;
     public Color colour;
     public final Player[] players;
+    public int officialReviews;
+    public int timeouts;
     
     public Team(boolean isBlack) {
         if(isBlack) {
@@ -77,15 +85,8 @@ public class Team {
         for(int i = 0; i < MAX_ROSTER; i++) {
             players[i] = new Player();
         }
-    }
-    
-    private Team(String identifier) {
-        this.identifier = identifier;
-        this.colour = Color.white;
-        players = new Player[MAX_ROSTER];
-        for(int i = 0; i < MAX_ROSTER; i++) {
-            players[i] = new Player();
-        }
+        officialReviews = MAX_REVIEWS;
+        timeouts = MAX_TIMEOUTS;
     }
     
     public void sortPlayers() {
@@ -140,6 +141,22 @@ public class Team {
 
     public Color getContrast() {
         return Team.getContrast(colour);
+    }
+    
+    public String getReviewsString() {
+        String rv = "";
+        for(int i = 0; i < officialReviews; i++) {
+            rv += FullScreenOptionsDialog.getOfficialReviewString();
+        }
+        return rv;
+    }
+    
+    public String getTimeoutString() {
+        String rv = "";
+        for(int i = 0; i < timeouts; i++) {
+            rv += FullScreenOptionsDialog.getTimeoutString();
+        }
+        return rv;
     }
     
 }
