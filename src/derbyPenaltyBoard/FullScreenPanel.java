@@ -139,6 +139,10 @@ public class FullScreenPanel extends javax.swing.JPanel {
                 + FullScreenOptionsDialog.getRowPadding(FullScreenOptionsDialog.TOP)
                 + FullScreenOptionsDialog.getRowPadding(FullScreenOptionsDialog.BOTTOM));
         tblTeam.getMyModel().fireTableStructureChanged();
+        if(FullScreenOptionsDialog.isPlayerColumnWidthSet()) {
+            tblTeam.getColumnModel().getColumn(0).setPreferredWidth(FullScreenOptionsDialog.getPlayerColumnWidth());
+            tblTeam.getColumnModel().getColumn(0).setWidth(FullScreenOptionsDialog.getPlayerColumnWidth());
+        }
     }
     
 }

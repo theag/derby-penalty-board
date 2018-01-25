@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.HashSet;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
@@ -43,6 +44,8 @@ public class MainFrame extends javax.swing.JFrame {
         
         pcd = new PenaltyCodesDialog(this, false);
         miFullScreen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0));
+        miUpdateFullScreen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
+        
         
         setExtendedState(getExtendedState()|MAXIMIZED_BOTH );
         

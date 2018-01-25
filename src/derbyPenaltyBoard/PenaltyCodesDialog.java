@@ -58,7 +58,7 @@ public class PenaltyCodesDialog extends javax.swing.JDialog {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 513, Short.MAX_VALUE)
+            .addGap(0, 537, Short.MAX_VALUE)
         );
 
         pack();
@@ -104,7 +104,8 @@ public class PenaltyCodesDialog extends javax.swing.JDialog {
                 {"N", "Insubordination"},
                 {"Z", "Delay of Game"},
                 {"G", "Misconduct"},
-                {"", "Gross Misconduct"}};
+                {"", "Gross Misconduct"},
+                {"T", "Hitting - Juniors only"}};
         }
 
         @Override
