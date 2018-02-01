@@ -209,7 +209,7 @@ public class TeamPanel extends javax.swing.JPanel {
         if(evt.isPopupTrigger() && rowClicked >= 0) {
             miNumber.setText(team.players[rowClicked].number);
             miMoveUp.setEnabled(rowClicked > 0);
-            miMoveDown.setEnabled(rowClicked < Team.MAX_ROSTER - 1);
+            miMoveDown.setEnabled(rowClicked < Team.getMaxRoster() - 1);
             popupPlayer.show(tblTeam, evt.getX(), evt.getY());
         }
     }//GEN-LAST:event_tblTeamMouseReleased
@@ -284,6 +284,19 @@ public class TeamPanel extends javax.swing.JPanel {
         if(tblTeam.isEditing()) {
             tblTeam.getCellEditor().stopCellEditing();
         }
+    }
+    
+    public void scrimModeChange() {
+        ((TeamTableModel)tblTeam.getModel()).fireTableDataChanged();
+        ((OfficialReviewSpinnerModel)spnOfficialReviews.getModel()).setMaximum(Team.getMaxReviews());
+        if((Integer)spnOfficialReviews.getValue() > Team.getMaxReviews()) {
+            spnOfficialReviews.setValue(Team.getMaxReviews());
+        }
+        ((TimeoutSpinnerModel)spnTimeouts.getModel()).setMaximum(Team.getMaxTimeouts());
+        if((Integer)spnTimeouts.getValue() > Team.getMaxTimeouts()) {
+            spnTimeouts.setValue(Team.getMaxTimeouts());
+        }
+        fireTeamTableUpdated();
     }
     
     public void addTeamUpdateListener(TeamUpdateEvent.TeamUpdateListener listener) {

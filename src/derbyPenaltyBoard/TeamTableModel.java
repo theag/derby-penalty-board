@@ -37,7 +37,7 @@ public class TeamTableModel extends AbstractTableModel {
 
     @Override
     public int getRowCount() {
-        return Team.MAX_ROSTER;
+        return Team.getMaxRoster();
     }
 
     @Override

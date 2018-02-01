@@ -16,7 +16,7 @@ public class OfficialReviewSpinnerModel extends SpinnerNumberModel {
     private final Team team;
     
     public OfficialReviewSpinnerModel(Team team) {
-        super(team.officialReviews, 0, Team.MAX_REVIEWS, 1);
+        super(team.officialReviews, 0, Team.getMaxReviews(), 1);
         this.team = team;
     }
     

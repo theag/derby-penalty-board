@@ -6,38 +6,40 @@
 package derbyPenaltyBoard;
 
 import java.awt.Color;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 
 /**
  *
  * @author nbp184
  */
 public class Team {
-    public static final int MAX_ROSTER = 14;
-    public static final int MAX_REVIEWS = 1;
-    public static final int MAX_TIMEOUTS = 3;
-
-    public static Team load(File file, boolean isBlack) throws IOException, NumberFormatException {
-        BufferedReader inFile = new BufferedReader(new FileReader(file));
-        Team rv = new Team(isBlack);
-        String line = inFile.readLine().trim();
-        int index = 0;
-        while(line != null && index < MAX_ROSTER) {
-            if(!line.isEmpty()) {
-                int space = line.indexOf(" ");
-                if(space >= 0) {
-                    rv.players[index++].number = line.substring(0, space);
-                } else {
-                    rv.players[index++].number = line;
-                }
-            }
-            line = inFile.readLine();
+    private static final int MAX_ROSTER = 15;
+    private static final int MAX_REVIEWS= 1;
+    private static final int MAX_TIMEOUTS = 3;
+    
+    public static boolean scrimmageMode = false;
+    
+    public static int getMaxRoster() {
+        if(scrimmageMode) {
+            return ScrimModeOptionsDialog.getNumberOfPlayers();
+        } else {
+            return MAX_ROSTER;
         }
-        inFile.close();
-        return rv;
+    }
+    
+    public static int getMaxReviews() {
+        if(scrimmageMode) {
+            return ScrimModeOptionsDialog.getOfficialReviews();
+        } else {
+            return MAX_REVIEWS;
+        }
+    }
+    
+    public static int getMaxTimeouts() {
+        if(scrimmageMode) {
+            return ScrimModeOptionsDialog.getTimeouts();
+        } else {
+            return MAX_TIMEOUTS;
+        }
     }
 
     public static Color getContrast(Color colour) {
@@ -53,7 +55,7 @@ public class Team {
     
     public static String getMaxReviewsString() {
         String rv = "";
-        for(int i = 0; i < MAX_REVIEWS; i++) {
+        for(int i = 0; i < getMaxReviews(); i++) {
             rv += FullScreenOptionsDialog.getOfficialReviewString();
         }
         return rv;
@@ -61,7 +63,7 @@ public class Team {
     
     public static String getMaxTimeoutString() {
         String rv = "";
-        for(int i = 0; i < MAX_TIMEOUTS; i++) {
+        for(int i = 0; i < getMaxTimeouts(); i++) {
             rv += FullScreenOptionsDialog.getTimeoutString();
         }
         return rv;
@@ -69,7 +71,7 @@ public class Team {
     
     public String identifier;
     public Color colour;
-    public final Player[] players;
+    public Player[] players;
     public int officialReviews;
     public int timeouts;
     
@@ -81,18 +83,18 @@ public class Team {
             identifier = "White";
             colour = Color.white;
         }
-        players = new Player[MAX_ROSTER];
-        for(int i = 0; i < MAX_ROSTER; i++) {
+        players = new Player[getMaxRoster()];
+        for(int i = 0; i < getMaxRoster(); i++) {
             players[i] = new Player();
         }
-        officialReviews = MAX_REVIEWS;
-        timeouts = MAX_TIMEOUTS;
+        officialReviews = getMaxReviews();
+        timeouts = getMaxTimeouts();
     }
     
     public void sortPlayers() {
         Player temp;
         int j;
-        for(int i = 1; i < MAX_ROSTER; i++) {
+        for(int i = 1; i < getMaxRoster(); i++) {
             j = i;
             while(j > 0 && players[j-1].compareTo(players[j]) > 0) {
                 temp = players[j-1];
@@ -157,6 +159,21 @@ public class Team {
             rv += FullScreenOptionsDialog.getTimeoutString();
         }
         return rv;
+    }
+
+    public void updateRoster() {
+        if(players.length > getMaxRoster()) {
+            Player[] temp = players;
+            players = new Player[getMaxRoster()];
+            System.arraycopy(temp, 0, players, 0, getMaxRoster());
+        } else if(players.length < getMaxRoster()) {
+            Player[] temp = players;
+            players = new Player[getMaxRoster()];
+            System.arraycopy(temp, 0, players, 0, temp.length);
+            for(int i = temp.length; i < getMaxRoster(); i++) {
+                players[i] = new Player();
+            }
+        }
     }
     
 }

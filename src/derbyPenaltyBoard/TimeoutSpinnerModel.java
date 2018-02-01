@@ -16,7 +16,7 @@ public class TimeoutSpinnerModel extends SpinnerNumberModel {
     private final Team team;
     
     public TimeoutSpinnerModel(Team team) {
-        super(team.timeouts, 0, Team.MAX_TIMEOUTS, 1);
+        super(team.timeouts, 0, Team.getMaxTimeouts(), 1);
         this.team = team;
     }
     

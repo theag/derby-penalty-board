@@ -19,7 +19,6 @@ public class FullScreenPanel extends javax.swing.JPanel {
     private int rowClicked;
     
     private javax.swing.JScrollPane jScrollPane1;
-    //private javax.swing.JLabel lblHeader;
     private FullScreenHeaderPanel header;
     
     /**

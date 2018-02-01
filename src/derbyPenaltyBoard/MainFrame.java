@@ -9,11 +9,12 @@ import java.awt.GraphicsDevice;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.HashSet;
+import java.nio.ByteBuffer;
 import javax.swing.JOptionPane;
+import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 
 /**
@@ -21,10 +22,11 @@ import javax.swing.KeyStroke;
  * @author nbp184
  */
 public class MainFrame extends javax.swing.JFrame {
+    
+    private static final char END_OF_STRING = (char)3;
 
     private Game game;
     private FullScreenForm fsf;
-    private MyFileChooser fc;
     private PenaltyCodesDialog pcd;
     
     /**
@@ -33,10 +35,17 @@ public class MainFrame extends javax.swing.JFrame {
     public MainFrame() {
         initComponents();
         this.setLocationRelativeTo(null);
-        String directory = FullScreenOptionsDialog.load();
-        fc = new MyFileChooser("Text file", "txt");
-        if(directory != null) {
-            fc.setCurrentDirectory(new File(directory));
+        try {
+            File f = new File("options.ini");
+            byte[] bytes = new byte[(int)f.length()];
+            FileInputStream in = new FileInputStream(f);
+            in.read(bytes);
+            in.close();
+            ByteBuffer buffer = ByteBuffer.wrap(bytes);
+            FullScreenOptionsDialog.load(buffer, END_OF_STRING);
+            ScrimModeOptionsDialog.load(buffer);
+        } catch(IOException ex) {
+            
         }
         game = new Game();
         splitPaneTeam.setLeftComponent(new TeamPanel(game.leftTeam));
@@ -73,6 +82,8 @@ public class MainFrame extends javax.swing.JFrame {
         miClearRightTeam = new javax.swing.JMenuItem();
         mEdit = new javax.swing.JMenu();
         miTeamSwap = new javax.swing.JMenuItem();
+        miScrimMode = new javax.swing.JCheckBoxMenuItem();
+        miScrimModeOptions = new javax.swing.JMenuItem();
         mView = new javax.swing.JMenu();
         miFullScreen = new javax.swing.JCheckBoxMenuItem();
         miUpdateFullScreen = new javax.swing.JMenuItem();
@@ -80,6 +91,8 @@ public class MainFrame extends javax.swing.JFrame {
         miFullScreenOptions = new javax.swing.JMenuItem();
         jSeparator3 = new javax.swing.JPopupMenu.Separator();
         miPenaltyCodes = new javax.swing.JCheckBoxMenuItem();
+        jSeparator4 = new javax.swing.JPopupMenu.Separator();
+        miVerticalMode = new javax.swing.JCheckBoxMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Derby Penalty Board");
@@ -159,6 +172,22 @@ public class MainFrame extends javax.swing.JFrame {
         });
         mEdit.add(miTeamSwap);
 
+        miScrimMode.setText("Scrimmage Mode");
+        miScrimMode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miScrimModeActionPerformed(evt);
+            }
+        });
+        mEdit.add(miScrimMode);
+
+        miScrimModeOptions.setText("Scrimmage Mode Options");
+        miScrimModeOptions.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miScrimModeOptionsActionPerformed(evt);
+            }
+        });
+        mEdit.add(miScrimModeOptions);
+
         mbMain.add(mEdit);
 
         mView.setText("View");
@@ -197,6 +226,15 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
         mView.add(miPenaltyCodes);
+        mView.add(jSeparator4);
+
+        miVerticalMode.setText("Vertical Mode");
+        miVerticalMode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miVerticalModeActionPerformed(evt);
+            }
+        });
+        mView.add(miVerticalMode);
 
         mbMain.add(mView);
 
@@ -291,7 +329,16 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_miUpdateFullScreenActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        FullScreenOptionsDialog.save(fc.getCurrentDirectory().getAbsolutePath());
+        try {
+            ByteBuffer buffer = ByteBuffer.allocate(FullScreenOptionsDialog.saveSize() +ScrimModeOptionsDialog.saveSize());
+            FullScreenOptionsDialog.save(buffer, END_OF_STRING);
+            ScrimModeOptionsDialog.save(buffer);
+            FileOutputStream o = new FileOutputStream("options.ini");
+            o.write(buffer.array());
+            o.close();
+        } catch(IOException ex) {
+            
+        }
     }//GEN-LAST:event_formWindowClosing
 
     private void miPenaltyCodesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miPenaltyCodesActionPerformed
@@ -299,64 +346,11 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_miPenaltyCodesActionPerformed
 
     private void miLoadLeftActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miLoadLeftActionPerformed
-        fc.setSelectedFile(null);
-        int result = fc.showOpenDialog(this);
-        if(result == MyFileChooser.APPROVE_OPTION) {
-            try {
-                game.leftTeam = Team.load(fc.getSelectedFile(), false);
-                splitPaneTeam.setLeftComponent(new TeamPanel(game.leftTeam));
-                splitPaneTeam.setDividerLocation(0.5);
-                if(fsf != null && fsf.isDisplayable()) {
-                    fsf.resetLeft(game.leftTeam);
-                }
-            } catch (IOException ex) {
-                String[] options = new String[]{"Show Details", "OK"};
-                result = JOptionPane.showOptionDialog(this, fc.getSelectedFile().getName() +"\nError Opening.", "Open", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
-                if(result == JOptionPane.YES_OPTION) {
-                    StringWriter sw = new StringWriter();
-                    ex.printStackTrace(new PrintWriter(sw));
-                    JOptionPane.showMessageDialog(this, sw.toString(), "Open - Details", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (NumberFormatException ex) {
-                String[] options = new String[]{"Show Details", "OK"};
-                result = JOptionPane.showOptionDialog(this, fc.getSelectedFile().getName() +"\nError Opening.", "Open", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
-                if(result == JOptionPane.YES_OPTION) {
-                    StringWriter sw = new StringWriter();
-                    ex.printStackTrace(new PrintWriter(sw));
-                    JOptionPane.showMessageDialog(this, sw.toString(), "Open - Details", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        }
+        
     }//GEN-LAST:event_miLoadLeftActionPerformed
 
     private void miLoadRightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miLoadRightActionPerformed
-        int result = fc.showOpenDialog(this);
-        if(result == MyFileChooser.APPROVE_OPTION) {
-            try {
-                game.rightTeam = Team.load(fc.getSelectedFile(), true);
-                splitPaneTeam.setRightComponent(new TeamPanel(game.rightTeam));
-                splitPaneTeam.setDividerLocation(0.5);
-                if(fsf != null && fsf.isDisplayable()) {
-                    fsf.resetRight(game.rightTeam);
-                }
-            } catch (IOException ex) {
-                String[] options = new String[]{"Show Details", "OK"};
-                result = JOptionPane.showOptionDialog(this, fc.getSelectedFile().getName() +"\nError Opening.", "Open", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
-                if(result == JOptionPane.YES_OPTION) {
-                    StringWriter sw = new StringWriter();
-                    ex.printStackTrace(new PrintWriter(sw));
-                    JOptionPane.showMessageDialog(this, sw.toString(), "Open - Details", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (NumberFormatException ex) {
-                String[] options = new String[]{"Show Details", "OK"};
-                result = JOptionPane.showOptionDialog(this, fc.getSelectedFile().getName() +"\nError Opening.", "Open", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
-                if(result == JOptionPane.YES_OPTION) {
-                    StringWriter sw = new StringWriter();
-                    ex.printStackTrace(new PrintWriter(sw));
-                    JOptionPane.showMessageDialog(this, sw.toString(), "Open - Details", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        }
+        
     }//GEN-LAST:event_miLoadRightActionPerformed
 
     private void miClearLeftTeamActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miClearLeftTeamActionPerformed
@@ -376,6 +370,37 @@ public class MainFrame extends javax.swing.JFrame {
             fsf.resetRight(game.rightTeam);
         }
     }//GEN-LAST:event_miClearRightTeamActionPerformed
+
+    private void miScrimModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miScrimModeActionPerformed
+        Team.scrimmageMode = miScrimMode.isSelected();
+        game.leftTeam.updateRoster();
+        game.rightTeam.updateRoster();
+        TeamPanel pnl = (TeamPanel)splitPaneTeam.getLeftComponent();
+        pnl.scrimModeChange();
+        pnl = (TeamPanel)splitPaneTeam.getRightComponent();
+        pnl.scrimModeChange();
+    }//GEN-LAST:event_miScrimModeActionPerformed
+
+    private void miScrimModeOptionsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miScrimModeOptionsActionPerformed
+        if(ScrimModeOptionsDialog.showDialog(this)) {
+            game.leftTeam.updateRoster();
+            game.rightTeam.updateRoster();
+            TeamPanel pnl = (TeamPanel)splitPaneTeam.getLeftComponent();
+            pnl.scrimModeChange();
+            pnl = (TeamPanel)splitPaneTeam.getRightComponent();
+            pnl.scrimModeChange();
+        }
+    }//GEN-LAST:event_miScrimModeOptionsActionPerformed
+
+    private void miVerticalModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miVerticalModeActionPerformed
+        if(miVerticalMode.isSelected()) {
+            splitPaneTeam.setOrientation(JSplitPane.VERTICAL_SPLIT);
+            splitPaneTeam.setDividerLocation(0.5);
+        } else {
+            splitPaneTeam.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+            splitPaneTeam.setDividerLocation(0.5);
+        }
+    }//GEN-LAST:event_miVerticalModeActionPerformed
 
     /**
      * @param args the command line arguments
@@ -419,6 +444,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator3;
+    private javax.swing.JPopupMenu.Separator jSeparator4;
     private javax.swing.JMenu mEdit;
     private javax.swing.JMenu mFile;
     private javax.swing.JMenu mView;
@@ -431,8 +457,11 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem miLoadRight;
     private javax.swing.JMenuItem miNewGame;
     private javax.swing.JCheckBoxMenuItem miPenaltyCodes;
+    private javax.swing.JCheckBoxMenuItem miScrimMode;
+    private javax.swing.JMenuItem miScrimModeOptions;
     private javax.swing.JMenuItem miTeamSwap;
     private javax.swing.JMenuItem miUpdateFullScreen;
+    private javax.swing.JCheckBoxMenuItem miVerticalMode;
     private javax.swing.JSplitPane splitPaneTeam;
     // End of variables declaration//GEN-END:variables
 

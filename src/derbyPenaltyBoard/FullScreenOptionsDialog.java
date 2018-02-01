@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,6 +47,7 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
         FullScreenOptionsDialog dialog = new FullScreenOptionsDialog(parent, true, device);
         dialog.setLocationRelativeTo(parent);
         dialog.setVisible(true);
+        dialog.dispose();
     }
     
     public static void showDialog(java.awt.Frame parent, GraphicsDevice device, FullScreenForm fsf) {
@@ -53,6 +55,7 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
         dialog.setFullScreenForm(fsf);
         dialog.setLocationRelativeTo(parent);
         dialog.setVisible(true);
+        dialog.dispose();
     }
     
     public static GraphicsDevice getScreenDevice() {
@@ -110,67 +113,79 @@ public class FullScreenOptionsDialog extends javax.swing.JDialog {
     public static String getTimeoutString() {
         return timeout;
     }
-
-    public static void save(String rv) {
-        try {
-            PrintWriter outFile = new PrintWriter(new File("options.ini"));
-            outFile.println(headerFontSize);
-            outFile.println(showTeamIdentifier);
-            for(int i = 0; i < headerPadding.length; i++) {
-                outFile.println(headerPadding[i]);
-            }
-            outFile.println(headerPaddingSame);
-            outFile.println(cellFontSize);
-            for(int i = 0; i < rowPadding.length; i++) {
-                outFile.println(rowPadding[i]);
-            }
-            outFile.println(rowPaddingSame);
-            outFile.println(ejectedLineThickness);
-            outFile.println(setPlayerColumnWidth);
-            outFile.println(playerColumnWidth);
-            outFile.println(satDotHeight);
-            outFile.println(satDotHeightUnit);
-            outFile.println(officialReview);
-            outFile.println(timeout);
-            outFile.println(rv);
-            outFile.close();
-        } catch (IOException ex) {
-            Logger.getLogger(FullScreenOptionsDialog.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    
+    public static int saveSize() {
+        //floats, byte, ints, chars
+        return 4*3 + 1 + 4*(headerPadding.length + rowPadding.length + 2) + 2*(1 + officialReview.length() + 1 + timeout.length() + 1);
     }
 
-    public static String load() {
-        String rv = null;
-        try {
-            BufferedReader inFile = new BufferedReader(new FileReader("options.ini"));
-            headerFontSize = Float.parseFloat(inFile.readLine());
-            showTeamIdentifier = Boolean.parseBoolean(inFile.readLine());
-            for(int i = 0; i < headerPadding.length; i++) {
-                headerPadding[i] = Integer.parseInt(inFile.readLine());
-            }
-            headerPaddingSame = Boolean.parseBoolean(inFile.readLine());
-            cellFontSize = Float.parseFloat(inFile.readLine());
-            for(int i = 0; i < rowPadding.length; i++) {
-                rowPadding[i] = Integer.parseInt(inFile.readLine());
-            }
-            rowPaddingSame = Boolean.parseBoolean(inFile.readLine());
-            ejectedLineThickness = Integer.parseInt(inFile.readLine());
-            setPlayerColumnWidth = Boolean.parseBoolean(inFile.readLine());
-            playerColumnWidth = Integer.parseInt(inFile.readLine());
-            satDotHeight = Float.parseFloat(inFile.readLine());
-            satDotHeightUnit = inFile.readLine().charAt(0);
-            officialReview = inFile.readLine();
-            timeout = inFile.readLine();
-            rv = inFile.readLine();
-            inFile.close();
-        } catch (IOException ex) {
-            Logger.getLogger(FullScreenOptionsDialog.class.getName()).log(Level.SEVERE, null, ex);
-            rv = null;
-        } catch (NumberFormatException ex) {
-            Logger.getLogger(FullScreenOptionsDialog.class.getName()).log(Level.SEVERE, null, ex);
-            rv = null;
+    public static void save(ByteBuffer buffer, char endOfString) {
+        buffer.putFloat(headerFontSize);
+        byte b = 0;
+        if(showTeamIdentifier) {
+            b |= 1;
         }
-        return rv;
+        if(headerPaddingSame) {
+            b |= 2;
+        }
+        if(rowPaddingSame) {
+            b |= 4;
+        }
+        if(setPlayerColumnWidth) {
+            b |= 8;
+        }
+        buffer.put(b);
+        for(int i : headerPadding) {
+            buffer.putInt(i);
+        }
+        for(int i : rowPadding) {
+            buffer.putInt(i);
+        }
+        buffer.putFloat(cellFontSize);
+        buffer.putInt(ejectedLineThickness);
+        buffer.putInt(playerColumnWidth);
+        buffer.putFloat(satDotHeight);
+        buffer.putChar(satDotHeightUnit);
+        for(int i = 0; i < officialReview.length(); i++) {
+            buffer.putChar(officialReview.charAt(i));
+        }
+        buffer.putChar(endOfString);
+        for(int i = 0; i < timeout.length(); i++) {
+            buffer.putChar(timeout.charAt(i));
+        }
+        buffer.putChar(endOfString);
+    }
+
+    public static void load(ByteBuffer buffer, char endOfString) {
+        headerFontSize = buffer.getFloat();
+        byte b = buffer.get();
+        showTeamIdentifier = (b&1) > 0;
+        headerPaddingSame = (b&2) > 0;
+        rowPaddingSame = (b&4) > 0;
+        setPlayerColumnWidth = (b&8) > 0;
+        for(int i = 0; i < headerPadding.length; i++) {
+            headerPadding[i] = buffer.getInt();
+        }
+        for(int i = 0; i < rowPadding.length; i++) {
+            rowPadding[i] = buffer.getInt();
+        }
+        cellFontSize = buffer.getFloat();
+        ejectedLineThickness = buffer.getInt();
+        playerColumnWidth = buffer.getInt();
+        satDotHeight = buffer.getFloat();
+        satDotHeightUnit = buffer.getChar();
+        officialReview = "";
+        char chr = buffer.getChar();
+        while(chr != endOfString) {
+            officialReview += chr;
+            chr = buffer.getChar();
+        }
+        timeout = "";
+        chr = buffer.getChar();
+        while(chr != endOfString) {
+            timeout += chr;
+            chr = buffer.getChar();
+        }
     }
     
     private FullScreenForm fsf;
